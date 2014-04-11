@@ -1,0 +1,53 @@
+% !TEX TS-program = pdflatex
+% !TEX encoding = UTF-8 Unicode
+
+% This is a simple template for a LaTeX document using the "article" class.
+% See "book", "report", "letter" for other types of document.
+
+\documentclass[11pt]{IEEETran} % use larger type; default would be 10pt
+
+\usepackage[utf8]{inputenc} % set input encoding (not needed with XeLaTeX)
+
+%%% Examples of Article customizations
+% These packages are optional, depending whether you want the features they provide.
+% See the LaTeX Companion or other references for full information.
+
+
+%%% END Article customizations
+
+%%% The "real" document content comes below...
+
+\title{VHASH: Spatial DHT based on Voronoi Tessellation}
+\author{Brendan Benshoof, Andrew Rosen, Anu Bourgiose, Robert Harrison}
+\author{\IEEEauthorblockN{Brendan Benshoof,
+Andrew Rosen\, Anu Bourgeois and Robert Harrison}\\
+\IEEEauthorblockA{Department of Computer Science, \\ Georgia State University, Atlanta, Georgia}
+}
+%\date{} % Activate to display a given date or no date (if empty),
+         % otherwise the current date is printed 
+
+\begin{document}
+\maketitle
+
+Distributed Hash Tables are used as a tool to generate overlay networks for P2P networks. Current DHT techniques are not designed to take the nature of the underlying network into account when organizing the overlay network; they assign nodes locations in a ring or tree, limiting the ability of these networks to be more efficient. We present VHASH as a spatial DHT based on approximate Delunay Triangulation to integrate location information of nodes into overlay network topology. VHASH allows for the creation of P2P networks with faster record look-up time, storage, and maintenance with a geographically diverse set of nodes.
+
+\section{VHash}
+
+VHash was created to allow for spacial representations to be mapped to hash locations guided by previous work into object location embedding \cite{voronet}. Rather than focus on minimizing the amount of hops required to travel from point to point we wish to minimize the time required for a message to reach its recipient. VHash actually has a worse worst case hop distance ($O(\sqrt[d]{n})$) than other comparable distributed hash tables ($O(lg(n))$) \cite{chord}. However, VHash can route messages as quickly as possible rather than traveling over a grand tour that an overlay network may describe in the real world.
+
+
+\section{Mechanism}
+VHash maps nodes to a $d$ dimension toroidal unit space overlay. This is essentially a hypercube with wrapping edges. The toroidal property makes visualization difficult but allows for a space without a sparse edge, as all nodes can translate the space such that they are at the center of the space.  This is a helpful property in ensuring efficient routing to all other nodes.
+
+VHash nodes are responsible for the address space defined by their Voronoi region. This region is defined by a list of peers maintained by the node. A minimum list of peers is maintained such that the node's Voronoi region is well defined. The links connecting the node to its peers correspond to the links of a Delaunay Triangulation.
+
+\subsection{Message Routing}
+
+When routing a message to an arbitrary location, a node calculates who's Voronoi region the message's destination is within among itself and its peers. If the destination falls within its own region, then it is responsible and handles the message accordingly. Otherwise, it forwards the message to the responsible peer and that peer attempts to route the message. This process mimics a pre-computed A* \cite{astar} routing algorithm over the network. 
+
+In terms of metric length, the average routing distance in VHash is the width of the metric space. This is superior to other DHTs because their topologies do not attempt to optimize for distances between nodes. A standard DHT overlay is necessarily $O(lg(n))$ times worse. The distance it takes for the DHT to route 1 hop is equivalent to the distance a VHash message requires to reach the destination. 
+
+\bibliographystyle{plain}
+\bibliography{P3DNS}
+
+\end{document}

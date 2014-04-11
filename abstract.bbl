@@ -1,0 +1,23 @@
+\begin{thebibliography}{1}
+
+\bibitem{voronet}
+Olivier Beaumont, A-M Kermarrec, Loris Marchal, and Etienne Rivi{\`e}re.
+\newblock Voronet: A scalable object network based on voronoi tessellations.
+\newblock In {\em Parallel and Distributed Processing Symposium, 2007. IPDPS
+  2007. IEEE International}, pages 1--10. IEEE, 2007.
+
+\bibitem{astar}
+P.E. Hart, N.J. Nilsson, and B.~Raphael.
+\newblock A formal basis for the heuristic determination of minimum cost paths.
+\newblock {\em Systems Science and Cybernetics, IEEE Transactions on},
+  4(2):100--107, 1968.
+
+\bibitem{chord}
+Ion Stoica, Robert Morris, David Karger, M~Frans Kaashoek, and Hari
+  Balakrishnan.
+\newblock Chord: A scalable peer-to-peer lookup service for internet
+  applications.
+\newblock In {\em ACM SIGCOMM Computer Communication Review}, volume~31, pages
+  149--160. ACM, 2001.
+
+\end{thebibliography}

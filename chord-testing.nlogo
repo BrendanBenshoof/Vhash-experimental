@@ -20,11 +20,37 @@ to go
   mainloop
 end
 
+to-report hashdist [a b];;called by two
+  let delta b - a
+  if delta <= 0 [set delta maxval + delta]
+  report delta
+end
+
+to-report getBestNode [testid]
+  let best min-one-of other chordnodes [hashdist testid [id] of self]
+  report best
+end
+
+to set-peers;; called by node to create links to all other nodes
+  ;;USE DIRECTED LINKS
+  let i 0
+  while [i < degree - 1]
+  [
+    let loc ([id] of self + (2 ^ i)) mod maxval
+    let best getBestNode loc
+    create-link-to best
+    set i i + 1
+  ]
+  
+end
+
+
 to create-network [n]
   clear-turtles
   set done-msgs 0.0
   set total-age 0.0
   set average 0.0
+  set maxval 2 ^ degree
   ;;spawn a bunch at random location
   ;;move any co-locating nodes to new locations
   ;;repeat forever if nessesary
@@ -65,6 +91,7 @@ to mainloop
 end
 
 to spawn-message ;; called by god
+  if count messages < 10 [
   let myorigin one-of chordnodes
   let mydest one-of chordnodes
   create-messages 1 [
@@ -72,13 +99,19 @@ to spawn-message ;; called by god
     set dest mydest
     set hops 1
   ]
+  ]
 end
 
 
 to step-message ;; called by each message
-  set age age + 1.0
+  
   face hop-dest
-  fd 1
+  let jumpdist distance hop-dest
+  if jumpdist > 1.0 [
+     set jumpdist 1
+  ]
+  set age age + jumpdist
+  fd jumpdist
 end
 
 to finish-message ;; called by finishing message
@@ -90,6 +123,24 @@ to finish-message ;; called by finishing message
   die
 end
 
+to-report getBestForward [mdest]
+  let peers sort-on [id] out-link-neighbors
+  show peers
+  let best item 0 peers
+  foreach peers [
+    let pid [id] of ?
+    ifelse pid < [id] of best[
+      set best ?
+      ]
+      [
+      report best
+      ]
+  ]
+  report item ((count peers) - 1) peers
+  
+  
+end
+
 to route ;; called by the routing node
   foreach sort messages-here [
     ifelse [dest] of ? = self [
@@ -98,69 +149,38 @@ to route ;; called by the routing node
       ]
     ]
     [
-    let mdest [dest] of ?
-    let newdest item 0 sort-on [distance mdest] link-neighbors
-    ask ?[
-      set hop-dest newdest
-      set hops hops + 1
-    ]
-    ]
-  ]
-end
-
-to set-voronoi-peers ;; called by this turtle
-  let everybody-else sort-on [distance self] other chordnodes
-  let closest item 0 everybody-else
-  create-link-with closest
-  
-  set everybody-else but-first everybody-else
-  foreach everybody-else [
-    let midpoint get-midpoint self ?
-    let mx item 0 midpoint
-    let my item 1 midpoint
-    let singleton (list ?)
-    let canidate-set  (turtle-set link-neighbors singleton);;union of ? and my current peers
-    let proof min-one-of canidate-set [ distancexy mx my ]
-    if proof = ? [
-      create-link-with ?
+      let mdest [dest] of ?
+        let newdest getBestForward mdest
+        ask ?[
+        set hop-dest newdest
+        set hops hops + 1
+      ]
     ]
   ]
 end
 
-to-report get-midpoint [ t1 t2 ]
-  let result (list)
-  ask t1 [
-    hatch 1 [
-      face t2
-      forward distance t2 / 2
-      set result list xcor ycor
-      die
-    ]
-  ]
-  report result
-end
 @#$#@#$#@
 GRAPHICS-WINDOW
-194
-9
-937
-773
-50
-50
-7.26
+336
+11
+687
+380
+10
+10
+20.0
 1
 10
 1
 1
 1
 0
+0
+0
 1
-1
-1
--50
-50
--50
-50
+-10
+10
+-10
+10
 0
 0
 1
@@ -193,7 +213,7 @@ popsize
 popsize
 2
 500
-2048
+9
 1
 1
 NIL
@@ -250,6 +270,49 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+154
+45
+327
+79
+degree
+degree
+1
+20
+20
+1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+12
+8
+142
+42
+makepretty
+layout-circle (sort-by [[id] of ?1 < [id] of ?2]  (sort-on [who] chordnodes)) max-pxcor * 0.8
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+MONITOR
+126
+405
+194
+450
+Messages
+count messages
+1
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
