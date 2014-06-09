@@ -64,7 +64,11 @@ We present VHASH as a DHT designed to take inter-node latency information into a
 
 Our paper presents the following:
 \begin{itemize}
-	\item We define the pr
+	\item We define how VHash functions.
+	\item We show how file sharing and fault tolerance works.
+	\item We do some simulations to prove it works.
+	\item We present the related work.
+	\item We present our future work.
 \end{itemize}
 
 Two difficulties that arise in attempting to use Voronoi Tessellation for constructing a DHT.
@@ -163,7 +167,7 @@ Maintenance and joining are handled by a simple periodic mechanism. A notificati
 
 \subsection{Message Routing}
 Messages are routed over the overlay network using a simple algorithm ( Algorithm \ref{routing}). 
-When routing a message to an arbitrary location, a node calculates who's voronoi region the message's destination is in amongst the itself and its peers. If the destination falls within its own region, then it is responsible and handles the message accordingly. Otherwise, the node forwards the message to the closest peer to the destination location. This process describes a pre-computed and cached A* routing  algorithm \cite{astar} . 
+When routing a message to an arbitrary location, a node calculates who's Voronoi region the message's destination is in amongst the itself and its peers. If the destination falls within its own region, then it is responsible and handles the message accordingly. Otherwise, the node forwards the message to the closest peer to the destination location. This process describes\footnote{Wording.  Is equivalent a better word?} a pre-computed and cached A* routing  algorithm \cite{astar} . 
 
 \begin{algorithm}
 \caption{Vhash Routing}
@@ -286,6 +290,8 @@ Voronet stuff here.
 
 
 \section{Conclusions and Future Work}
+Apply this to MANET.
+
 
 \bibliographystyle{ieeetr}
 \bibliography{P3DNS}
