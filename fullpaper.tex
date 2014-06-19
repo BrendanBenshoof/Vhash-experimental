@@ -81,9 +81,8 @@ Two difficulties that arise in attempting to use Voronoi Tessellation for constr
 
 
 
-VHash is generalization of ring-based DHTs like Chord \cite{chord}, Pastry , and Symphony from 1-dimensional keyspaces to keyspaces with any number of dimensions.
+VHash is generalization of ring-based DHTs like Chord \cite{chord}, Pastry , and Symphony from 1-dimensional keyspaces to keyspaces with any number of dimensions.  
 
-Chord, if it were generalized out to $d$ dimensions without finger tables would have a lookup time of $\sqrt[d]{n}$.
 
 VHash was created to allow for spacial representations to be mapped to hash locations, a feature lacking in many current distributed hash tables.  In particular, we aimed to construct a mechanism for creating a more efficient global scale DHT built on a minimal latency overlay. Rather than focus on minimizing the amount of hops required to travel from point to point we wish to minimize the time required for a message to reach its recipient. VHash actually has a worse worst case hop distance ($O(\sqrt[d]{n})$) than other comparable distributed hash tables ($O(lg(n))$). However, VHash can route messages as quickly as possible rather than traveling over a grand tour that an overlay network may describe in the real world.
 
@@ -93,6 +92,10 @@ Algorithm \ref{latency} describes the process for performing a minimum latency e
 
 %The intent is that meaning can be ascribed to locations in the DHT and facilitate more efficent function. 
 %Specifically in this example we seek to build a minimal latency overlay network for the DHT so a global scale DHT is viable and efficent. 
+
+Chord, if it were generalized out to $d$ dimensions without finger tables would have a lookup time of $\sqrt[d]{n}$.
+
+
 
 
 
@@ -127,8 +130,14 @@ Algorithm \ref{latency} describes the process for performing a minimum latency e
 
 
 
-\subsection{Key Generation}
+\subsection{Key Generation - Mapping a Node to Coordinates}
 
+
+\subsection{Memory Overhead}
+In order to route, a node maintains a routing table consisting of the nodes it borders a region with.  Unlike other DHTs, which keep routing tables of a set size, VHash's routing table depends on the nodes that it shares a border with, which is on average $3^d -1$
+
+Consider a $d$-dimensional toroidal space.  Let some arbitrary point $A$ be the center of this space\footnote{Any point in a toroidal space can view itself as it's center}.  A hypercube that surrounds the space would be defined by $3^d -1$ points citation \footnote{Is this rigorous enough?}
+ 
 \subsection{Toroidal Distance Equation}
 
 Given two vector locations $\vec{a}$ and $\vec{b}$ on a  $d$ dimensional unit toroidal hypercube:
