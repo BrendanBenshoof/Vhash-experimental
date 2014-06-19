@@ -38,7 +38,7 @@
 
 %%% The "real" document content comes below...
 
-\title{VHASH: Spatial DHT based on Voronoi Tessellation}
+\title{VHash: A Voronoi-Based Multidimensional Distributed Hash Table}
 \author{Brendan Benshoof \qquad Andrew Rosen  \\Department of Computer Science, Georgia State University\\  bbenshoof@cs.gsu.edu \qquad rosen@cs.gsu.edu }
 \date{} % Activate to display a given date or no date (if empty),
          % otherwise the current date is printed 
@@ -52,15 +52,15 @@ Distributed Hash Tables are used as a tool to generate overlay networks for P2P 
 %2. Say why it’s an interesting problem
 A DHT technique that allows for efficient construction of an overlay network that takes into account the real underlying network would allow for higher performance and faster P2P networks.
 %3. Say what your solution achieves
-We present VHASH as a spacial DHT based on approximate Delaunay Triangulation to integrate distance information between nodes into overlay network topology.
+We present VHash as a spacial DHT based on approximate Delaunay Triangulation to integrate distance information between nodes into overlay network topology.
 %4. Say what follows from your solution
-VHASH allows for the creation of P2P networks with faster record lookup time, storage, and maintenance with a geographically diverse set of nodes.
+VHash allows for the creation of P2P networks with faster record lookup time, storage, and maintenance with a geographically diverse set of nodes.
 
 \end{abstract}
 \section{Introduction}
 A Distributed Hash Table is used provide an overlay network for many P2P applications. State of the art DHT techniques are built on tree or log-ring structures to ensure that the routing distance is $O(lg(n))$ hops between nodes. These topologies, while sufficient in reasonably local networks, do not take into account the lengths or latencies of routes defined by the topology, assuming that every hop has similar latency and throughput. For a global network, a more intelligent means of generating a dynamic overlay network with efficient routing, storage, and backups is needed for future P2P applications. 
 
-We present VHASH as a DHT designed to take inter-node latency information into account when generating an overlay for massive scale use.  VHash creates 
+We present VHash as a DHT designed to take inter-node latency information into account when generating an overlay on a massive scale.  VHash creates a
 
 Our paper presents the following:
 \begin{itemize}
@@ -75,6 +75,12 @@ Two difficulties that arise in attempting to use Voronoi Tessellation for constr
 
 
 \section{VHash}
+
+
+
+VHash is generalization of ring-based DHTs like Chord \cite{chord}, Pastry , and Symphony from 1-dimensional keyspaces to keyspaces with any number of dimensions.
+
+Chord, if it were generalized out to $d$ dimensions without finger tables would have a lookup time of $\sqrt[d]{n}$.
 
 VHash was created to allow for spacial representations to be mapped to hash locations, a feature lacking in many current distributed hash tables.  In particular, we aimed to construct a mechanism for creating a more efficient global scale DHT built on a minimal latency overlay. Rather than focus on minimizing the amount of hops required to travel from point to point we wish to minimize the time required for a message to reach its recipient. VHash actually has a worse worst case hop distance ($O(\sqrt[d]{n})$) than other comparable distributed hash tables ($O(lg(n))$). However, VHash can route messages as quickly as possible rather than traveling over a grand tour that an overlay network may describe in the real world.
 
@@ -98,7 +104,7 @@ Algorithm \ref{latency} describes the process for performing a minimum latency e
 
 
 \begin{algorithm}
-\caption{Vhash Minimum Latency Embedding}
+\caption{VHash Minimum Latency Embedding}
 \label{latency}
 \begin{algorithmic}[1]  % the number is how many 
 	\STATE $d$ is the dimensions of the hash space

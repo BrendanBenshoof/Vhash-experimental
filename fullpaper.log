@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (MiKTeX 2.9) (preloaded format=pdflatex 2013.12.17)  9 JUN 2014 17:27
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (MiKTeX 2.9) (preloaded format=pdflatex 2013.12.17)  19 JUN 2014 12:57
 entering extended mode
 **fullpaper.tex
 (C:\Users\Andrew\Documents\GitHub\Vhash-experimental\fullpaper.tex
@@ -573,21 +573,21 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 
 
 ]
-Overfull \hbox (5.68073pt too wide) detected at line 123
+Overfull \hbox (5.68073pt too wide) detected at line 129
 \OML/cmm/m/it/10 distance \OT1/cmr/m/n/10 = [][]
  []
 
 [2]
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 170.
+(Font)              <8> on input line 176.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 170.
+(Font)              <6> on input line 176.
 
 
-LaTeX Warning: Reference `churnjoin' on page 3 undefined on input line 217.
+LaTeX Warning: Reference `churnjoin' on page 3 undefined on input line 223.
 
 [3]
-Underfull \vbox (badness 4531) has occurred while \output is active []
+Underfull \vbox (badness 7326) has occurred while \output is active []
 
  [4]
 (C:\Users\Andrew\Documents\GitHub\Vhash-experimental\fullpaper.bbl) [5
@@ -601,7 +601,7 @@ LaTeX Warning: There were undefined references.
 Here is how much of TeX's memory you used:
  4328 strings out of 493921
  67839 string characters out of 3144872
- 139712 words of memory out of 3000000
+ 135726 words of memory out of 3000000
  7578 multiletter control sequences out of 15000+200000
  39736 words of font info for 73 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
@@ -620,7 +620,7 @@ fonts/type1/urw/times/utmb8a.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1
 /urw/times/utmbi8a.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/urw/times
 /utmr8a.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/urw/times/utmri8a.pf
 b>
-Output written on fullpaper.pdf (5 pages, 154342 bytes).
+Output written on fullpaper.pdf (5 pages, 154713 bytes).
 PDF statistics:
  71 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
