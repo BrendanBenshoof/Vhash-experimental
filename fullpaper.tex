@@ -78,6 +78,9 @@ Two difficulties that arise in attempting to use Voronoi Tessellation for constr
 
 
 
+
+
+
 VHash is generalization of ring-based DHTs like Chord \cite{chord}, Pastry , and Symphony from 1-dimensional keyspaces to keyspaces with any number of dimensions.
 
 Chord, if it were generalized out to $d$ dimensions without finger tables would have a lookup time of $\sqrt[d]{n}$.
@@ -94,9 +97,12 @@ Algorithm \ref{latency} describes the process for performing a minimum latency e
 
 
 \begin{itemize}
-	\item Assignment of keys and responsibility
+	\item Assignment of keys and responsibility.  IN Chord it is the successor, Pastry is closest to id.
+	\item Pastry's locality heuristic assumes Euclidean space, namely triangle equality holds.  How do we get around that.   Pastry also assumes magic distance function is provided to determine distance between two nodes, however distance is not embedded in the keyspace (which is randomly distributed) but rather the ``proximity space''  built off of bootstrapped assumetions (node we are using to joining the ring is close to the joining node in the proximity space, and the proximity assumptions for a network were good prior to the join operation.  The key idea is that at each hop messages travel closer to the destination, while minimizing the metric distance traveled  (such as num hops).  Expected distance traveled grows exponentially with each hop.  their results showed that the metric distance traveled by routed message over pastry was 30\%-40\% greater than the distance between the source and destination.  Has to uyse second stage when joining to maintain locality.  Total join cost in messages is $\approx 3 \cdot 2^b \cdot \log_{2^{b}} N $
 	\item Cost of computing the Voronoi region.  We get around this by accurately approximating it and letting our fault tolerance mechanisms handle any discrepancies until the network repairs itself.
 \end{itemize}
+
+
 
 
 
@@ -121,7 +127,7 @@ Algorithm \ref{latency} describes the process for performing a minimum latency e
 
 
 
-
+\subsection{Key Generation}
 
 \subsection{Toroidal Distance Equation}
 
@@ -201,6 +207,8 @@ The message is forwarded to the current owner of that location who can be consid
 The parent node immediately replies with a maintenance message containing its full peer list. This message is sent to the joining node, who then uses this to begin defining the space it is responsible for. 
 
 The joining node's initial peers are a subset of the parent and the parent's peers. The parent adds the new node to its own peer list and removes all his peers occluded by the new node.  Then regular maintenance propagates the new node's information and repairs the overlay topology.  This process is described by Algorithm \ref{join}.
+
+\subsection{Eclipse and Sybil Attacks}
 
 \begin{algorithm}
 \caption{Vhash Join}
