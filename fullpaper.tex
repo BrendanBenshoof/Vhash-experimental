@@ -99,10 +99,12 @@ Chord, if it were generalized out to $d$ dimensions without finger tables would 
 
 
 
+
 \begin{itemize}
 	\item Assignment of keys and responsibility.  IN Chord it is the successor, Pastry is closest to id.
 	\item Pastry's locality heuristic assumes Euclidean space, namely triangle equality holds.  How do we get around that.   Pastry also assumes magic distance function is provided to determine distance between two nodes, however distance is not embedded in the keyspace (which is randomly distributed) but rather the ``proximity space''  built off of bootstrapped assumetions (node we are using to joining the ring is close to the joining node in the proximity space, and the proximity assumptions for a network were good prior to the join operation.  The key idea is that at each hop messages travel closer to the destination, while minimizing the metric distance traveled  (such as num hops).  Expected distance traveled grows exponentially with each hop.  their results showed that the metric distance traveled by routed message over pastry was 30\%-40\% greater than the distance between the source and destination.  Has to uyse second stage when joining to maintain locality.  Total join cost in messages is $\approx 3 \cdot 2^b \cdot \log_{2^{b}} N $
 	\item Cost of computing the Voronoi region.  We get around this by accurately approximating it and letting our fault tolerance mechanisms handle any discrepancies until the network repairs itself.
+	\item The central idea behind routing is that for a given object mapped to a point on the network, the routing protocol will either find the node closest to that point or forward the routing to a node closer to the destination.
 \end{itemize}
 
 
@@ -328,9 +330,27 @@ Some options are immediately apparent for dealing with wasted storage space. A s
 
 A node periodically sends a message containing backups of the resources for which it became newly responsible for to each of its peers. To minimize bandwidth and time wasted by backups, the node should only send the records changed since last backup.
 
+
+
+
+
+
+\section{Simulations}
+
+
+
+
+
 \section{Related Work}
 Voronet stuff here.
 
+
+Beaumont \textit{et al} \cite{raynet}  argues that a loose structure enough for searching.  Assume a $d$-dimension space, each dimension tied to some attribute of an object and each object identified by a unique set of values.  Objects should be linked to other objects that are close in the space.
+ 
+
+The key insight that Beaumont \textit{et al} had  was that nodes only needed to calculate their regions locally and this can be done via goosip-based protocol.
+
+Each node maintains a \textit{view}, the closest $3d+1$ neighbors it knows of and periodically exchanges information with them
 
 \section{Conclusions and Future Work}
 Apply this to MANET.
