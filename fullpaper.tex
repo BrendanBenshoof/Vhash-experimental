@@ -132,7 +132,6 @@ Chord, if it were generalized out to $d$ dimensions without finger tables would 
 
 \subsection{Key Generation - Mapping a Node to Coordinates}
 
-
 We suggest using the following spaces as our dimensions
 
 \subsubsection{Cryptographic Keyspace}
@@ -141,10 +140,23 @@ We suggest using the following spaces as our dimensions
 
 \subsubsection{Security/Trust Space}
 
+\subsection{Node Degree}
+
+\subsubsection{Average Case}
+Avg. Node degree is the average degree of a point in a $d$-dimensional toroidal space.  
+Consider a $d$-dimensional toroidal space.  Let some arbitrary point $A$ be the center of this space\footnote{Any point in a toroidal space can view itself as it's center}.  A hypercube that surrounds the space would be defined by $3^d -1$ points citation \footnote{Is this rigorous enough?}
+
+\subsubsection{Worst Case}
+
+
+The expected maximum degree of a ?point?  in $d$-dimensional Delaunay Triangulation is $\Theta(\frac{\log n}{\log \log n} )$ \cite{bern1991expected}.  We don't know how this is effected by toroidal spaces.
+
+
+
 \subsection{Memory Overhead}
 In order to route, a node maintains a routing table consisting of the nodes it borders a region with.  Unlike other DHTs, which keep routing tables of a set size, VHash's routing table depends on the nodes that it shares a border with, which is on average $3^d -1$
 
-Consider a $d$-dimensional toroidal space.  Let some arbitrary point $A$ be the center of this space\footnote{Any point in a toroidal space can view itself as it's center}.  A hypercube that surrounds the space would be defined by $3^d -1$ points citation \footnote{Is this rigorous enough?}
+
  
 \subsection{Toroidal Distance Equation}
 
