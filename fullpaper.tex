@@ -60,44 +60,43 @@ VHash allows for the creation of P2P networks with faster record lookup time, st
 \section{Introduction}
 A Distributed Hash Table is used provide an overlay network for many P2P applications. State of the art DHT techniques are built on tree or $\log$-ring structures to ensure that the routing distance is $O(lg(n))$ hops between nodes. These topologies, while sufficient in reasonably local networks, do not take into account the lengths or latencies of routes defined by the topology, assuming that every hop has similar latency and throughput. For a global network, a more intelligent means of generating a dynamic overlay network with efficient routing, storage, and backups is needed for future P2P applications. 
 
-We present VHash as a DHT designed to take inter-node latency information into account when generating an overlay on a massive scale.  VHash creates a
+We present VHash as a DHT designed to take inter-node latency information into account when generating an overlay on a massive scale.  VHash creates an approximation of a Voronoi network to define the routing tables and dictate where content is stored in the network. 
 
 Our paper presents the following:
 \begin{itemize}
-	\item We define how VHash functions via .
+	\item We define how VHash functions.
 	\item We show how file sharing and fault tolerance works.
 	\item We do some simulations to prove it works.
 	\item We present the related work.
 	\item We present our future work.
 \end{itemize}
 
-Two difficulties that arise in attempting to use Voronoi Tessellation for constructing a DHT.
-
 
 \section{VHash}
 
+VHash was created to map spacial representations to hash locations, a feature lacking in many current distributed hash tables.  In particular, we aimed to construct a mechanism for creating a more efficient global scale DHT built on a minimal latency overlay.  We accomplish this by identifying each node with $d$ coordinates, rather than than a single key.  
 
-VHash was created to allow for spacial representations to be mapped to hash locations, a feature lacking in many current distributed hash tables.  In particular, we aimed to construct a mechanism for creating a more efficient global scale DHT built on a minimal latency overlay.  
+In the vast majority of Distributed Hash Tables, such as Chord, Kademlia, Pastry, a node is mapped key on a 1-dimensional keyspace.  This key is chosen via a hash function, such as SHA-1, ensuring that nodes are randomly and uniformly the overlay network.  
+This provides the network with fault tolerance; if all the nodes located in a real geographic region were suddenly taken offline, the damage to the network would be spread unformly throughout the network and maintenance would repair the damage.  
 
-In the vast majority of Distributed Hash Tables, such as Chord, Kademlia, Pastry, a node is mapped key on a 1-dimensional keyspace.  This key is chosen via a hash function, such as SHA-1, ensuring that nodes are randomly and uniformly the overlay network.  This provides the network with fault tolerance; if all the nodes located in a real geographic region were suddenly taken offline, the damage to the network would be spread unformly throughout the network and maintenance would repair the damage.  
-
-One the otherhand
-
+Since no spacial information is embedded in the key, the routing tables and algorithms of DHTs aim to minimize the number of hops in order to route quickly.
 %VHash is generalization of ring-based DHTs like Chord \cite{chord}, Pastry , and Symphony from 1-dimensional keyspaces to keyspaces with any number of dimensions.  
 
-Rather than focus on minimizing the amount of hops required to travel from point to point we wish to minimize the time required for a message to reach its recipient. VHash actually has a worse worst case hop distance ($O(\sqrt[d]{n})$) than other comparable distributed hash tables ($O(lg(n))$). However, VHash can route messages as quickly as possible rather than traveling over a grand tour that an overlay network may describe in the real world.
+Rather than focus on minimizing the amount of hops required to travel from point to point we wish to minimize the time required for a message to reach its recipient. VHash actually has a worse worst case hop distance ($O(\sqrt[d]{n})$)\footnote{Proof? It may be polylogarithmic} than other comparable distributed hash tables ($O(lg(n))$). However, VHash can route messages as quickly as possible rather than traveling over a grand tour that an overlay network may describe in the real world.
 
-The naive method of doing so is to assign coordinates to servers based on the geographic location of nodes. More complex approaches would approximate a minimum latency space based on inter-node latency. VHash can be considered  a generalized extension of VoroNet \cite{voronet}. 
-%Why is Voronet not okay and why is VHash
-Algorithm \ref{latency} describes the process for performing a minimum latency embedding using VHash.
+The naive method of doing so is to assign coordinates to servers based on the geographic location of nodes. More complex approaches approximate a minimum latency space based on internode latency. VHash can be considered  a generalized extension of VoroNet \cite{voronet} and  RayNet \cite{raynet}.  Algorithm \ref{latency} describes the process for performing a minimum latency embedding using VHash.
 
 %The intent is that meaning can be ascribed to locations in the DHT and facilitate more efficent function. 
 %Specifically in this example we seek to build a minimal latency overlay network for the DHT so a global scale DHT is viable and efficent. 
 
-Chord, if it were generalized out to $d$ dimensions without finger tables would have a lookup time of $\sqrt[d]{n}$.
+%Chord, if it were generalized out to $d$ dimensions without finger tables would have a lookup time of $\sqrt[d]{n}$.
 
 
-\subsubsection{Small world Networks}
+
+\subsection{Routing Table and Peerlist}
+The
+
+
 Polylogarithmic routing \cite{kleinberg2000navigation}
 
 
@@ -105,12 +104,7 @@ Polylogarithmic routing \cite{kleinberg2000navigation}
 
 
 
-\begin{itemize}
-	\item Assignment of keys and responsibility.  IN Chord it is the successor, Pastry is closest to id.
-	\item Pastry's locality heuristic assumes Euclidean space, namely triangle equality holds.  How do we get around that.   Pastry also assumes magic distance function is provided to determine distance between two nodes, however distance is not embedded in the keyspace (which is randomly distributed) but rather the ``proximity space''  built off of bootstrapped assumetions (node we are using to joining the ring is close to the joining node in the proximity space, and the proximity assumptions for a network were good prior to the join operation.  The key idea is that at each hop messages travel closer to the destination, while minimizing the metric distance traveled  (such as num hops).  Expected distance traveled grows exponentially with each hop.  their results showed that the metric distance traveled by routed message over pastry was 30\%-40\% greater than the distance between the source and destination.  Has to uyse second stage when joining to maintain locality.  Total join cost in messages is $\approx 3 \cdot 2^b \cdot \log_{2^{b}} N $
-	\item Cost of computing the Voronoi region.  We get around this by accurately approximating it and letting our fault tolerance mechanisms handle any discrepancies until the network repairs itself.
-	\item The central idea behind routing is that for a given object mapped to a point on the network, the routing protocol will either find the node closest to that point or forward the routing to a node closer to the destination.
-\end{itemize}
+
 
 
 
@@ -136,7 +130,6 @@ Polylogarithmic routing \cite{kleinberg2000navigation}
 
 
 
-
 \subsection{Key Generation - Mapping a Node to Coordinates}
 
 We suggest using the following spaces as our dimensions
@@ -147,7 +140,7 @@ We suggest using the following spaces as our dimensions
 
 \subsubsection{Security/Trust Space}
 
-\subsubsection{Handling Nodes}
+\subsubsection{Handling Files}
 
 \subsection{Node Degree}
 
@@ -158,19 +151,18 @@ Consider a $d$-dimensional toroidal space.  Let some arbitrary point $A$ be the 
 \subsubsection{Worst Case}
 
 
-The expected maximum degree of a ?point?  in $d$-dimensional Delaunay Triangulation is $\Theta(\frac{\log n}{\log \log n} )$ \cite{bern1991expected}.  We don't know how this is effected by toroidal spaces.
+The expected maximum degree of a ?point?  in $d$-dimensional Delaunay Triangulation is $\Theta(\frac{\log n}{\log \log n} )$ \cite{bern1991expected}.  We don't know how this is affected by toroidal spaces.
 
 
 
-\subsection{Memory Overhead}
-In order to route, a node maintains a routing table consisting of the nodes it borders a region with.  Unlike other DHTs, which keep routing tables of a set size, VHash's routing table depends on the nodes that it shares a border with, which is on average $3^d -1$
+\subsubsection{Memory Overhead}
+In order to route, a node maintains a routing table consisting of the nodes it borders a region with.  Unlike other DHTs, which keep routing tables of a set size, VHash's routing table depends on the nodes that it shares a border with, which is on average $3^d -1$???
 
 
  
 \subsection{Toroidal Distance Equation}
-
-Given two vector locations $\vec{a}$ and $\vec{b}$ on a  $d$ dimensional unit toroidal hypercube:
-\[ distance = \sqrt[|d|]{\sum\limits_{i\in d} (\min(|\vec{a}_i-\vec{b}_i|,1.0-|\vec{a}_i-\vec{b}_i|))^2}\]
+As VHash uses multiple dimensions, responsibity for a key is assigned to the node closest to that key. Given two vector locations $\vec{a}$ and $\vec{b}$ on a  $d$ dimensional unit toroidal hypercube, the distance between them is:
+\[  \sqrt[d]{\sum\limits_{i\in d} (\min(|\vec{a}_i-\vec{b}_i|, 1.0-|\vec{a}_i-\vec{b}_i|))^2}\]
 
 \subsection{Mechanism}
 VHash maps nodes to a $d$ dimension toroidal unit space overlay. This is essentially a hypercube with wrapping edges. The toroidal property makes visualization difficult but allows for a space without a sparse edge, as all nodes can translate the space such that they are at the center of the space.  In effect, each node views itself at the center of the graph.
@@ -189,6 +181,12 @@ VHash nodes are responsible for the address space defined by their Voronoi regio
 VHash does not strictly solve Voronoi diagrams \cite{voronoi}, as the toroidal nature of the space preclude the traditional means of solving for Voronoi regions. However, VHash's peer management approximates a topology with similar properties. 
 %Rather than attempt to calculate the Voronoi region of each node, it simply filters locations, assigning responsibility to the nearest node. 
 An online algorithm (Algorithm \ref{peer} maintains the set of peers defining the node's Voronoi region. The set of peers required to define a node's Voronoi Region corresponds to a solution to the dual Delaunay Triangulation.
+\subsubsection{Voronoi Difficulties}
+Two difficulties that arise in attempting to use Voronoi Tessellation for constructing a DHT.
+\begin{itemize}
+	\item Voronoi diagrams are expensive to solve when $d \geq 3$ and would require massive overhead costs for each node to define it's own region.  We solve this by approximating the region, rather that solving it.
+	\item How do yiou define the routing list?
+\end{itemize}
 
 
 
@@ -245,6 +243,8 @@ The message is forwarded to the current owner of that location who can be consid
 The parent node immediately replies with a maintenance message containing its full peer list. This message is sent to the joining node, who then uses this to begin defining the space it is responsible for. 
 
 The joining node's initial peers are a subset of the parent and the parent's peers. The parent adds the new node to its own peer list and removes all his peers occluded by the new node.  Then regular maintenance propagates the new node's information and repairs the overlay topology.  This process is described by Algorithm \ref{join}.
+
+
 
 \subsection{Eclipse and Sybil Attacks}
 
@@ -361,6 +361,11 @@ Each node maintains a \textit{view}, the closest $3d+1$ neighbors it knows of an
 
 
 Pastry also tried to address this problem.
+
+%\begin{itemize}
+%	\item Assignment of keys and responsibility.  IN Chord it is the successor, Pastry is closest to id.
+%	\item Pastry's locality heuristic assumes Euclidean space, namely triangle equality holds.  How do we get around that.   Pastry also assumes magic distance function is provided to determine distance between two nodes, however distance is not embedded in the keyspace (which is randomly distributed) but rather the ``proximity space''  built off of bootstrapped assumetions (node we are using to joining the ring is close to the joining node in the proximity space, and the proximity assumptions for a network were good prior to the join operation.  The key idea is that at each hop messages travel closer to the destination, while minimizing the metric distance traveled  (such as num hops).  Expected distance traveled grows exponentially with each hop.  their results showed that the metric distance traveled by routed message over pastry was 30\%-40\% greater than the distance between the source and destination.  Has to uyse second stage when joining to maintain locality.  Total join cost in messages is $\approx 3 \cdot 2^b \cdot \log_{2^{b}} N $
+%\end{itemize}
 
 \section{Conclusions and Future Work}
 Apply this to MANET.
