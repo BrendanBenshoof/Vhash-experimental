@@ -1,8 +1,8 @@
 \documentclass{IEEEtran}
 
 \usepackage[utf8]{inputenc} % set input encoding (not needed with XeLaTeX)
-\usepackage{geometry}
-\geometry{letterpaper}
+%\usepackage{geometry}
+%\geometry{letterpaper}
 %%% Examples of Article customizations
 % These packages are optional, depending whether you want the features they provide.
 % See the LaTeX Companion or other references for full information.
@@ -58,6 +58,7 @@ VHash allows for the creation of P2P networks with faster record lookup time, st
 
 \end{abstract}
 \section{Introduction}
+% Merge with Below
 A Distributed Hash Table is used provide an overlay network for many P2P applications. State of the art DHT techniques are built on tree or $\log$-ring structures to ensure that the routing distance is $O(lg(n))$ hops between nodes. These topologies, while sufficient in reasonably local networks, do not take into account the lengths or latencies of routes defined by the topology, assuming that every hop has similar latency and throughput. For a global network, a more intelligent means of generating a dynamic overlay network with efficient routing, storage, and backups is needed for future P2P applications. 
 
 We present VHash as a DHT designed to take inter-node latency information into account when generating an overlay on a massive scale.  VHash creates an approximation of a Voronoi network to define the routing tables and dictate where content is stored in the network. 
@@ -74,6 +75,8 @@ Our paper presents the following:
 
 \section{VHash}
 
+
+%Merge with introduction.
 VHash was created to map spacial representations to hash locations, a feature lacking in many current distributed hash tables.  In particular, we aimed to construct a mechanism for creating a more efficient global scale DHT built on a minimal latency overlay.  We accomplish this by identifying each node with $d$ coordinates, rather than than a single key.  
 
 In the vast majority of Distributed Hash Tables, such as Chord, Kademlia, Pastry, a node is mapped key on a 1-dimensional keyspace.  This key is chosen via a hash function, such as SHA-1, ensuring that nodes are randomly and uniformly the overlay network.  
@@ -84,7 +87,10 @@ Since no spacial information is embedded in the key, the routing tables and algo
 
 Rather than focus on minimizing the amount of hops required to travel from point to point we wish to minimize the time required for a message to reach its recipient. VHash actually has a worse worst case hop distance ($O(\sqrt[d]{n})$)\footnote{Proof? It may be polylogarithmic} than other comparable distributed hash tables ($O(lg(n))$). However, VHash can route messages as quickly as possible rather than traveling over a grand tour that an overlay network may describe in the real world.
 
-The naive method of doing so is to assign coordinates to servers based on the geographic location of nodes. More complex approaches approximate a minimum latency space based on internode latency. VHash can be considered  a generalized extension of VoroNet \cite{voronet} and  RayNet \cite{raynet}.  Algorithm \ref{latency} describes the process for performing a minimum latency embedding using VHash.
+The naive method of doing so is to assign coordinates to servers based on the geographic location of nodes. More complex approaches approximate a minimum latency space based on internode latency. VHash can be considered  a generalized extension of VoroNet \cite{voronet} and  RayNet \cite{raynet}.  
+
+
+
 
 %The intent is that meaning can be ascribed to locations in the DHT and facilitate more efficent function. 
 %Specifically in this example we seek to build a minimal latency overlay network for the DHT so a global scale DHT is viable and efficent. 
@@ -92,26 +98,19 @@ The naive method of doing so is to assign coordinates to servers based on the ge
 %Chord, if it were generalized out to $d$ dimensions without finger tables would have a lookup time of $\sqrt[d]{n}$.
 
 
+% First give a broad view, then get into specifics.
+\subsection{Summary of the Protocol}
+Voronoi diagrams define ownership of a space, with each object in the space owning all the points closest to it.  We denote the region owned by an object as a Voronoi region, or simply that object's region.  In VHash, these objects are nodes mapped to a $d$-dimensional toroidal space and the regions they own define the range of keys they are responsible for.  \footnote{If Chord defined node repsonisbilty in terms of distance to the key, Chord would be a 1-dimensional Voronoi diagram}.  
 
-\subsection{Routing Table and Peerlist}
-The
+%\subsubsection{Routing Table and Peerlist}
+Each node's routing table is composed of their neighbors in the overlay's corresponding Delaunay triangulation\footnote{Well a subset anyway. Or superset}.
 
-
-Polylogarithmic routing \cite{kleinberg2000navigation}
-
-
-
-
-
+Computing Voronoi Diagrams is expensive, but a greedy approximation of the Voronoi regions is sufficient for the protocol.  An online algorithm %(Algorithm \ref{peer})
+maintains the set of peers defining the node's Voronoi region. The set of peers required to define a node's Voronoi Region corresponds to a solution to the dual Delaunay Triangulation.
 
 
-
-
-
-
-
-
-
+%\subsubsection{But why?}
+By assigning nodes and files a set of coordinates composed of not only the hashkey, but information that can be used as a metric for routing.  This allows us to optimize routing in the the network along some metric, such as latency, without jeopardizing the distributed quality of the network\footnote{Need better way to say ``anti-nuke''property.}.  Algorithm \ref{latency} describes the process for performing a minimum latency embedding using VHash.
 
 \begin{algorithm}
 \caption{VHash Minimum Latency Embedding}
@@ -126,6 +125,13 @@ Polylogarithmic routing \cite{kleinberg2000navigation}
     \STATE Re-evaluate location periodically
 \end{algorithmic}
 \end{algorithm}
+
+
+
+%\subsubsection{Big O summary}
+The routing tables in VHash are $O(1)$ space and provides ?\footnote{Our initial assement was $d$-root, but other papers say 
+Polylogarithmic routing \cite{kleinberg2000navigation} \cite{raynet}} average lookup time in hops with a minimized latency.
+
 
 
 
@@ -176,11 +182,10 @@ VHash nodes are responsible for the address space defined by their Voronoi regio
     \label{churninit}
 \end{figure}
 
-\subsection{Relation to Voronoi Diagrams and Delaunay Triangulation}
+\subsection{Approximation }
 
 VHash does not strictly solve Voronoi diagrams \cite{voronoi}, as the toroidal nature of the space preclude the traditional means of solving for Voronoi regions. However, VHash's peer management approximates a topology with similar properties. 
 %Rather than attempt to calculate the Voronoi region of each node, it simply filters locations, assigning responsibility to the nearest node. 
-An online algorithm (Algorithm \ref{peer} maintains the set of peers defining the node's Voronoi region. The set of peers required to define a node's Voronoi Region corresponds to a solution to the dual Delaunay Triangulation.
 \subsubsection{Voronoi Difficulties}
 Two difficulties that arise in attempting to use Voronoi Tessellation for constructing a DHT.
 \begin{itemize}
@@ -340,6 +345,9 @@ A node periodically sends a message containing backups of the resources for whic
 
 
 
+
+\section{Error Analyis}
+What is the error of the Voronoi Region and Delaunay Triangulation.
 
 
 \section{Simulations}
