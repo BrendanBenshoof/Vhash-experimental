@@ -59,9 +59,22 @@ VHash allows for the creation of P2P networks with faster record lookup time, st
 \end{abstract}
 \section{Introduction}
 % Merge with Below
-A Distributed Hash Table is used provide an overlay network for many P2P applications. State of the art DHT techniques are built on tree or $\log$-ring structures to ensure that the routing distance is $O(lg(n))$ hops between nodes. These topologies, while sufficient in reasonably local networks, do not take into account the lengths or latencies of routes defined by the topology, assuming that every hop has similar latency and throughput. For a global network, a more intelligent means of generating a dynamic overlay network with efficient routing, storage, and backups is needed for future P2P applications. 
+A Distributed Hash Table is used provide an overlay network for many P2P applications. State of the art DHT techniques are built on tree or $\log$-ring structures to ensure that the routing distance is $O(lg(n))$ hops between nodes. These topologies, while sufficient in reasonably local networks, do not take into account the lengths or latencies of routes defined by the topology, assuming that every hop has similar latency and throughput. For a global network, a more intelligent means of generating a dynamic overlay network with efficient routing, storage, and backups is needed for future P2P applications.
 
-We present VHash as a DHT designed to take inter-node latency information into account when generating an overlay on a massive scale.  VHash creates an approximation of a Voronoi network to define the routing tables and dictate where content is stored in the network. 
+In the vast majority of Distributed Hash Tables, such as Chord, Kademlia, Pastry, a node is mapped key on a 1-dimensional keyspace.  This key is chosen via a hash function, such as SHA-1, ensuring that nodes are randomly and uniformly the overlay network.
+This provides the network with fault tolerance; if all the nodes located in a real geographic region were suddenly taken offline, the damage to the network would be spread unformly throughout the network and maintenance would repair the damage.  
+ 
+
+We present VHash as a DHT designed to take inter-node latency information into account when generating an overlay on a massive scale.  VHash creates an approximation of a Voronoi network to define the routing tables and dictate where content is stored in the network.  We accomplish this by identifying each node with $d$ coordinates, rather than than a single key.
+
+The naive method of doing so is to assign coordinates to servers based on the geographic location of nodes. More complex approaches approximate a minimum latency space based on internode latency. VHash can be considered  a generalized extension of VoroNet \cite{voronet} and  RayNet \cite{raynet}.
+
+%Since no spacial information is embedded in the key, the routing tables and algorithms of DHTs aim to minimize the number of hops in order to route quickly.
+%VHash is generalization of ring-based DHTs like Chord \cite{chord}, Pastry , and Symphony from 1-dimensional keyspaces to keyspaces with any number of dimensions.  
+
+%Rather than focus on minimizing the amount of hops required to travel from point to point we wish to minimize the time required for a message to reach its recipient. VHash actually has a worse worst case hop distance ($O(\sqrt[d]{n})$)\footnote{Proof? It may be polylogarithmic} than other comparable distributed hash tables ($O(lg(n))$). However, VHash can route messages as quickly as possible rather than traveling over a grand tour that an overlay network may describe in the real world.
+
+ 
 
 Our paper presents the following:
 \begin{itemize}
@@ -76,18 +89,7 @@ Our paper presents the following:
 \section{VHash}
 
 
-%Merge with introduction.
-VHash was created to map spacial representations to hash locations, a feature lacking in many current distributed hash tables.  In particular, we aimed to construct a mechanism for creating a more efficient global scale DHT built on a minimal latency overlay.  We accomplish this by identifying each node with $d$ coordinates, rather than than a single key.  
-
-In the vast majority of Distributed Hash Tables, such as Chord, Kademlia, Pastry, a node is mapped key on a 1-dimensional keyspace.  This key is chosen via a hash function, such as SHA-1, ensuring that nodes are randomly and uniformly the overlay network.  
-This provides the network with fault tolerance; if all the nodes located in a real geographic region were suddenly taken offline, the damage to the network would be spread unformly throughout the network and maintenance would repair the damage.  
-
-Since no spacial information is embedded in the key, the routing tables and algorithms of DHTs aim to minimize the number of hops in order to route quickly.
-%VHash is generalization of ring-based DHTs like Chord \cite{chord}, Pastry , and Symphony from 1-dimensional keyspaces to keyspaces with any number of dimensions.  
-
-Rather than focus on minimizing the amount of hops required to travel from point to point we wish to minimize the time required for a message to reach its recipient. VHash actually has a worse worst case hop distance ($O(\sqrt[d]{n})$)\footnote{Proof? It may be polylogarithmic} than other comparable distributed hash tables ($O(lg(n))$). However, VHash can route messages as quickly as possible rather than traveling over a grand tour that an overlay network may describe in the real world.
-
-The naive method of doing so is to assign coordinates to servers based on the geographic location of nodes. More complex approaches approximate a minimum latency space based on internode latency. VHash can be considered  a generalized extension of VoroNet \cite{voronet} and  RayNet \cite{raynet}.  
+ 
 
 
 
