@@ -59,15 +59,16 @@ VHash allows for the creation of P2P networks with faster record lookup time, st
 \end{abstract}
 \section{Introduction}
 % Merge with Below
-A Distributed Hash Table is used provide an overlay network for many P2P applications. State of the art DHT techniques are built on tree or $\log$-ring structures to ensure that the routing distance is $O(lg(n))$ hops between nodes. These topologies, while sufficient in reasonably local networks, do not take into account the lengths or latencies of routes defined by the topology, assuming that every hop has similar latency and throughput. For a global network, a more intelligent means of generating a dynamic overlay network with efficient routing, storage, and backups is needed for future P2P applications.
+A Distributed Hash Table is used provide an overlay network for many P2P applications. State of the art DHT techniques are built on trees or $\log$-ring structures to ensure that the routing distance is $O(lg(n))$ hops between nodes. 
 
 In the vast majority of Distributed Hash Tables, such as Chord, Kademlia, Pastry, a node is mapped key on a 1-dimensional keyspace.  This key is chosen via a hash function, such as SHA-1, ensuring that nodes are randomly and uniformly the overlay network.
-This provides the network with fault tolerance; if all the nodes located in a real geographic region were suddenly taken offline, the damage to the network would be spread unformly throughout the network and maintenance would repair the damage.  
+This provides the network with fault tolerance; if all the nodes located in a real geographic region were suddenly taken offline, the damage to the network would be spread uniformly throughout the network and maintenance would repair the damage.  
+These topologies, while sufficient in reasonably local networks, do not take embed the lengths or latencies of routes defined by the topology and assume that every hop has similar latency and throughput. For a global network, a more intelligent means of generating a dynamic overlay network with efficient routing, storage, and backups is needed for future P2P applications.
+
+
  
 
-We present VHash as a DHT designed to take inter-node latency information into account when generating an overlay on a massive scale.  VHash creates an approximation of a Voronoi network to define the routing tables and dictate where content is stored in the network.  We accomplish this by identifying each node with $d$ coordinates, rather than than a single key.
-
-The naive method of doing so is to assign coordinates to servers based on the geographic location of nodes. More complex approaches approximate a minimum latency space based on internode latency. VHash can be considered  a generalized extension of VoroNet \cite{voronet} and  RayNet \cite{raynet}.
+We present VHash as a DHT designed to take inter-node latency information into account when generating an overlay on a massive scale.  VHash creates an approximation of a Voronoi network to define the routing tables and dictate where content is stored in the network.  We accomplish this by assigning each node $d$ coordinates, rather than than a single key.  The naive method of doing so is to assign coordinates to servers based on the geographic location of nodes. More complex approaches approximate a minimum latency space based on internode latency. VHash can be considered  a generalized extension of VoroNet \cite{voronet} and  RayNet \cite{raynet}.
 
 %Since no spacial information is embedded in the key, the routing tables and algorithms of DHTs aim to minimize the number of hops in order to route quickly.
 %VHash is generalization of ring-based DHTs like Chord \cite{chord}, Pastry , and Symphony from 1-dimensional keyspaces to keyspaces with any number of dimensions.  
@@ -78,11 +79,10 @@ The naive method of doing so is to assign coordinates to servers based on the ge
 
 Our paper presents the following:
 \begin{itemize}
-	\item We define how VHash functions.
-	\item We show how file sharing and fault tolerance works.
-	\item We do some simulations to prove it works.
-	\item We present the related work.
-	\item We present our future work.
+	\item We present the algorithms that are used to approximate the Voronoi region and demostrate that these approximations are accurate and sufficient enough to efficiently route between arbitrary nodes.
+	\item We show how VHash can be used to create a robust, fault-tolerant file-sharing service.
+	\item We created a simulation of our protocol and compared it to previous Voronoi based algorithms.
+	\item We present the related work and how VHash improves upon the previous work and identify future areas of fruitful research.
 \end{itemize}
 
 
