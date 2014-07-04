@@ -357,12 +357,15 @@ What is the error of the Voronoi Region and Delaunay Triangulation.
 
 
 \section{Simulations}
+We simulated VHash to acertain the protocol's performance. 
+
+
+We began by creating a large underlay network.  Then $n$ random nodes were chosen to join the overlay \footnote{Can we used the number of underlay hops as out ``latency dimension'' here? }.  Nodes in the suimulation would route a message to one another and we plotted the latency and successful deliveries for VHash and Raynet.  Latency was measured by the number of hops in the \textit{underlay} network.  For comparison we also compared the performance if messages were routed perfectally and optimally to see how close to the ideal our performance was. 
 
 
 
 
-
-\section{Related Work}
+\section{Related Work And Future}
 Voronet stuff here.
 
 
@@ -381,7 +384,6 @@ Pastry also tried to address this problem.
 %	\item Pastry's locality heuristic assumes Euclidean space, namely triangle equality holds.  How do we get around that.   Pastry also assumes magic distance function is provided to determine distance between two nodes, however distance is not embedded in the keyspace (which is randomly distributed) but rather the ``proximity space''  built off of bootstrapped assumetions (node we are using to joining the ring is close to the joining node in the proximity space, and the proximity assumptions for a network were good prior to the join operation.  The key idea is that at each hop messages travel closer to the destination, while minimizing the metric distance traveled  (such as num hops).  Expected distance traveled grows exponentially with each hop.  their results showed that the metric distance traveled by routed message over pastry was 30\%-40\% greater than the distance between the source and destination.  Has to uyse second stage when joining to maintain locality.  Total join cost in messages is $\approx 3 \cdot 2^b \cdot \log_{2^{b}} N $
 %\end{itemize}
 
-\section{Conclusions and Future Work}
 Apply this to MANET.
 
 
