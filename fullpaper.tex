@@ -192,13 +192,11 @@ VHash nodes are responsible for the address space defined by their Voronoi regio
 
 VHash does not strictly solve Voronoi diagrams \cite{voronoi}, as the toroidal nature of the space preclude the traditional means of solving for Voronoi regions. However, VHash's peer management approximates a topology with similar properties. 
 %Rather than attempt to calculate the Voronoi region of each node, it simply filters locations, assigning responsibility to the nearest node. 
-\subsubsection{Voronoi Difficulties}
-Two difficulties that arise in attempting to use Voronoi Tessellation for constructing a DHT.
-\begin{itemize}
-	\item Voronoi diagrams are expensive to solve when $d \geq 3$ and would require massive overhead costs for each node to define it's own region.  We solve this by approximating the region, rather that solving it.
-	\item How do yiou define the routing list?
-\end{itemize}
+\subsubsection{Algorithm}
+Each cycle, nodes exchange their peerlists with their current neighbors and then recalculate their neighbors.  
+The calculation is straightforward.  After a node receives it's neighbor's peerlists, it combines their peerlists and its own into a list of candidate neighbors, sorted the nodes by distance from closest to furthest (using the distance metric from REF NEEDED HERE.  A new peerlist is then created starting with the first candidate from the list of candidates.  The node then looks at each of the remaining candidates and calculates the midpoint between the node and the candidate.  If any of the nodes in the new peerlist are closer to the candidate, the candidate is set aside.  Otherwise the candidate is added to the new peerlist.
 
+To reduce the effects of nodes occluding one another when they are clustered together, each node maintains at minimum $3d+1$ neighbors.  If the node has remaining slots left over after creating a new peerlist \footnote{This is what raynet did,worked for them, will it work for us?}, the remaining slots are filled up the closest remaining candidates.
 
 
 \begin{algorithm}
@@ -219,6 +217,26 @@ Two difficulties that arise in attempting to use Voronoi Tessellation for constr
     \ENDFOR
 \end{algorithmic}
 \end{algorithm}
+
+
+\subsubsection{Why this approximation works}
+By finding the correct (enough) neighbors, a node is able to approximate its local Voronoi region close enough for routing
+
+\subsubsection{Analysis}
+The cost of the algorithm is approximately .
+
+The \textit{expected maximum number of peers},\footnote{This is maximum number of peers that a node would have in a non-contrived example.  While the degree for a node can theoretically be $O(n)$ in a Delaunay triangulation, it is extremely unlikely.}
+
+\subsubsection{Voronoi Difficulties}
+Two difficulties that arise in attempting to use Voronoi Tessellation for constructing a DHT.
+\begin{itemize}
+	\item Voronoi diagrams are expensive to solve when $d \geq 3$ and would require massive overhead costs for each node to define it's own region.  We solve this by approximating the region, rather that solving it.
+	\item How do yiou define the routing list?
+\end{itemize}
+
+
+
+
 
 
 \subsection{Messages}
@@ -246,8 +264,13 @@ When routing a message to an arbitrary location, a node calculates who's Voronoi
 \end{algorithmic}
 \end{algorithm}
 
+\subsubsection{Andrew's random thought for fault tolerance with routing}
+If a node thinks it's responsible for some key, but it turns out not to be the case,  we can redirect the message to the node next closest (with a flag in the message to prevent loops). 
+
+
+
 \subsection{Joining and Maintenance}
-Joining the network is a straightforward process. A new node first learns the location of at least one member of the network to join. The joining node then choses a location in the hash space either at random or based on a problem formulation (for example, based on geographic location or latency information).
+Joining the network is a straightforward process. A new node first learns the location of at least one member of the network to join. The joining node then chooses a location in the hash space either at random or based on a problem formulation (for example, based on geographic location or latency information).
 
 After choosing a location, the joining node sends a "join" message to its own location via the known node.
 The message is forwarded to the current owner of that location who can be considered the "parent" node.
