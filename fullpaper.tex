@@ -190,7 +190,10 @@ VHash nodes are responsible for the address space defined by their Voronoi regio
 
 \subsection{Approximation }
 
-VHash does not strictly solve Voronoi diagrams \cite{voronoi}, as the toroidal nature of the space preclude the traditional means of solving for Voronoi regions. However, VHash's peer management approximates a topology with similar properties. 
+VHash does not strictly solve Voronoi diagrams \cite{voronoi} for two reasons.  First, the toroidal nature of the space preclude the traditional means of solving for Voronoi regions. Second, computing a Voronoi diagram in spaces where $d \geq 3$ is prohibithively expensive *citation*.
+
+
+However, VHash's peer management approximates a topology with similar properties. 
 %Rather than attempt to calculate the Voronoi region of each node, it simply filters locations, assigning responsibility to the nearest node. 
 \subsubsection{Voronoi Difficulties}
 Two difficulties that arise in attempting to use Voronoi Tessellation for constructing a DHT.
