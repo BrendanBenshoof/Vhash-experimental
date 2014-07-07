@@ -104,15 +104,13 @@ Our paper presents the following:
 \subsection{Summary of the Protocol}
 Voronoi diagrams define ownership of a space, with each object in the space owning all the points closest to it.  We denote the region owned by an object as a Voronoi region, or simply that object's region.  In VHash, these objects are nodes mapped to a $d$-dimensional toroidal space and the regions they own define the range of keys they are responsible for.  \footnote{If Chord defined node repsonisbilty in terms of distance to the key, Chord would be a 1-dimensional Voronoi diagram}.  
 
-%\subsubsection{Routing Table and Peerlist}
-Each node's routing table is composed of their neighbors in the overlay's corresponding Delaunay triangulation\footnote{Well a subset anyway. Or superset}.
 
-Computing Voronoi Diagrams is expensive, but a greedy approximation of the Voronoi regions is sufficient for the protocol.  An online algorithm %(Algorithm \ref{peer})
-maintains the set of peers defining the node's Voronoi region. The set of peers required to define a node's Voronoi Region corresponds to a solution to the dual Delaunay Triangulation.
+%\subsubsection{Routing Table and Peerlist}
+Each node's routing table is composed of their neighbors in the overlay's corresponding Delaunay triangulation\footnote{Well a subset anyway. Or superset}.  DUAL NATURE HERE.  Computing Voronoi Diagrams is expensive, but a greedy approximation of the Voronoi regions is sufficient for the protocol.  An online algorithm (Algorithm \ref{peer}) maintains the set of peers defining the node's Voronoi region.
 
 
 %\subsubsection{But why?}
-By assigning nodes and files a set of coordinates composed of not only the hashkey, but information that can be used as a metric for routing.  This allows us to optimize routing in the the network along some metric, such as latency, without jeopardizing the distributed quality of the network\footnote{Need better way to say ``anti-nuke''property.}.  Algorithm \ref{latency} describes the process for performing a minimum latency embedding using VHash.
+By assigning nodes and files a set of coordinates composed of not only the hashkey, but information that can be used as a metric for routing.  This allows us to optimize routing in the the network along some metric, such as latency, without jeopardizing the distributed quality of the network.  Algorithm \ref{latency} describes the process for performing a minimum latency embedding using VHash.
 
 \begin{algorithm}
 \caption{VHash Minimum Latency Embedding}
@@ -188,9 +186,9 @@ VHash nodes are responsible for the address space defined by their Voronoi regio
     \label{churninit}
 \end{figure}
 
-\subsection{Approximation }
+\subsection{Approximation}
 
-VHash does not strictly solve Voronoi diagrams \cite{voronoi} for two reasons.  First, the toroidal nature of the space preclude the traditional means of solving for Voronoi regions. Second, computing a Voronoi diagram in spaces where $d \geq 3$ is prohibithively expensive *citation*.
+VHash does not strictly solve Voronoi diagrams \cite{voronoi} for two reasons.  First, the toroidal nature of the space preclude the traditional means of solving for Voronoi regions. Second, computing a Voronoi diagram in spaces where $d \geq 3$ is prohibitively expensive *citation*.
 
 
 However, VHash's peer management approximates a topology with similar properties. 
@@ -224,6 +222,8 @@ To reduce the effects of nodes occluding one another when they are clustered tog
 
 \subsubsection{Why this approximation works}
 By finding the correct (enough) neighbors, a node is able to approximate its local Voronoi region close enough for routing
+If a node can figure out its Delaunay neighbors, it can extrapolate the Voronoi region (ie the region it's responsible for) from that. 
+
 
 \subsubsection{Analysis}
 The cost of the algorithm is approximately .
@@ -275,11 +275,11 @@ If a node thinks it's responsible for some key, but it turns out not to be the c
 \subsection{Joining and Maintenance}
 Joining the network is a straightforward process. A new node first learns the location of at least one member of the network to join. The joining node then chooses a location in the hash space either at random or based on a problem formulation (for example, based on geographic location or latency information).
 
-After choosing a location, the joining node sends a "join" message to its own location via the known node.
-The message is forwarded to the current owner of that location who can be considered the "parent" node.
+After choosing a location, the joining node sends a ``join'' message to its own location via the known node.
+The message is forwarded to the current owner of that location who can be considered the ``parent'' node.
 The parent node immediately replies with a maintenance message containing its full peer list. This message is sent to the joining node, who then uses this to begin defining the space it is responsible for. 
 
-The joining node's initial peers are a subset of the parent and the parent's peers. The parent adds the new node to its own peer list and removes all his peers occluded by the new node.  Then regular maintenance propagates the new node's information and repairs the overlay topology.  This process is described by Algorithm \ref{join}.
+The joining node's initial peers are a subset of the parent and the parent's peers. The parent adds the new node to its own peer list and removes all his peers occluded by the new node.  Then regular maintenance propagates the new node's information and repairs the overlay topology.  This process is enumerated by Algorithm \ref{join}.
 
 
 
