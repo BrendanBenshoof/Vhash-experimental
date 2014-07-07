@@ -61,7 +61,7 @@ VHash allows for the creation of P2P networks with faster record lookup time, st
 % Merge with Below
 A Distributed Hash Table is used provide an overlay network for many P2P applications. State of the art DHT techniques are built on trees or $\log$-ring structures to ensure that the routing distance is $O(lg(n))$ hops between nodes. 
 
-In the vast majority of Distributed Hash Tables, such as Chord, Kademlia, Pastry, a node is mapped key on a 1-dimensional keyspace.  This key is chosen via a hash function, such as SHA-1, ensuring that nodes are randomly and uniformly the overlay network.
+In the vast majority of Distributed Hash Tables, such as Chord \cite{chord}, Kademlia\cite{kademlia}, Pastry \cite{pastry}, a node is mapped key on a 1-dimensional keyspace.  This key is chosen via a hash function, such as SHA-1, ensuring that nodes are randomly and uniformly the overlay network.
 This provides the network with fault tolerance; if all the nodes located in a real geographic region were suddenly taken offline, the damage to the network would be spread uniformly throughout the network and maintenance would repair the damage.  
 These topologies, while sufficient in reasonably local networks, do not take embed the lengths or latencies of routes defined by the topology and assume that every hop has similar latency and throughput. For a global network, a more intelligent means of generating a dynamic overlay network with efficient routing, storage, and backups is needed for future P2P applications.
 
@@ -89,10 +89,6 @@ Our paper presents the following:
 \section{VHash}
 
 
- 
-
-
-
 
 %The intent is that meaning can be ascribed to locations in the DHT and facilitate more efficent function. 
 %Specifically in this example we seek to build a minimal latency overlay network for the DHT so a global scale DHT is viable and efficent. 
@@ -101,8 +97,8 @@ Our paper presents the following:
 
 
 % First give a broad view, then get into specifics.
-\subsection{Summary of the Protocol}
-Voronoi diagrams define ownership of a space, with each object in the space owning all the points closest to it.  We denote the region owned by an object as a Voronoi region, or simply that object's region.  In VHash, these objects are nodes mapped to a $d$-dimensional toroidal space and the regions they own define the range of keys they are responsible for.  \footnote{If Chord defined node repsonisbilty in terms of distance to the key, Chord would be a 1-dimensional Voronoi diagram}.  
+%\subsection{Summary of the Protocol}
+Voronoi diagrams define ownership of a space, with each object in the space owning all the points closest to it.  We denote the region owned by an object as a Voronoi region, or simply that object's region.  In VHash, these objects are nodes mapped to a $d$-dimensional toroidal space and the regions they own define the range of keys they are responsible for.  \footnote{If Chord defined node responsibility in terms of distance to the key, Chord would be a 1-dimensional Voronoi diagram}.  
 
 
 %\subsubsection{Routing Table and Peerlist}
@@ -110,7 +106,7 @@ Each node's routing table is composed of their neighbors in the overlay's corres
 
 
 %\subsubsection{But why?}
-By assigning nodes and files a set of coordinates composed of not only the hashkey, but information that can be used as a metric for routing.  This allows us to optimize routing in the the network along some metric, such as latency, without jeopardizing the distributed quality of the network.  Algorithm \ref{latency} describes the process for performing a minimum latency embedding using VHash.
+BY assigning nodes and files a set of coordinates composed of not only the hashkey, but information that can be used as a metric for routing,  allows us to optimize routing in the the network along that metric without jeopardizing the distributed quality of the network.  We are particularly interested in embedding latency as a measurement of the  Algorithm \ref{latency} describes the process for performing a minimum latency embedding using VHash.
 
 \begin{algorithm}
 \caption{VHash Minimum Latency Embedding}
@@ -119,7 +115,7 @@ By assigning nodes and files a set of coordinates composed of not only the hashk
 	\STATE $d$ is the dimensions of the hash space
     \STATE seed the space with $d+1$ nodes at random locations
    	\STATE A node $n$ wishes to join the network
-    \STATE $n$ pings a random subset of peers to find latencies $L$
+    \STATE $n$ pings a random subset of peers to find latency $L$
     \STATE Normalize $L$ onto (0.0,1.0) to yield $L_N$
     \STATE Choose position $p$ that minimizes $$\sum\limits_{i\in peers}(L_N[i]-dist(p,i))^2$$ 
     \STATE Re-evaluate location periodically
@@ -134,6 +130,17 @@ Polylogarithmic routing \cite{kleinberg2000navigation} \cite{raynet}} average lo
 
 
 
+\subsubsection{What are Voronoi Diagrams and  Delaunay Triangulation}
+
+A Voronoi diagram is the division of a $d$-dimensional space into cells or regions along a set of objects $O$ such that all the points in a particular region are closer to one object than any the object.  Bern et al.\  defines a Delaunay Triangulation as  something mathematically complex :( \cite{bern1991expected}.
+
+A Voronoi diagram and Delaunay Triangulation are dual problems, meaning solving one solves the other.
+%\textit{need definition that avoids the word simplex}. 
+
+
+
+
+\subsubsection{How much does actually solving cost?}
 
 
 \subsection{Key Generation - Mapping a Node to Coordinates}
@@ -231,10 +238,10 @@ The cost of the algorithm is approximately .
 The \textit{expected maximum number of peers},\footnote{This is maximum number of peers that a node would have in a non-contrived example.  While the degree for a node can theoretically be $O(n)$ in a Delaunay triangulation, it is extremely unlikely.}
 
 \subsubsection{Voronoi Difficulties}
-Two difficulties that arise in attempting to use Voronoi Tessellation for constructing a DHT.
+Two difficulties that arise in attempting to use Voronoi diagram for constructing a DHT.
 \begin{itemize}
 	\item Voronoi diagrams are expensive to solve when $d \geq 3$ and would require massive overhead costs for each node to define it's own region.  We solve this by approximating the region, rather that solving it.
-	\item How do yiou define the routing list?
+	\item How do you define the routing list?
 \end{itemize}
 
 
@@ -376,6 +383,8 @@ A node periodically sends a message containing backups of the resources for whic
 
 
 
+
+\section{Stampede}
 
 
 \section{Error Analyis}
