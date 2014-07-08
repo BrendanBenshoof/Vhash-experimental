@@ -98,7 +98,7 @@ The Delaunay Trangulation of this same space along the same set of objects is de
 The Voronoi diagram and Delaunay Triangulation are dual problems, as an edge between two objects in a Delaunay Triangulation exists iff those object's Voronoi region border each other.  
 This means that solving either problem will yield the solution to both. 
 
-In our network, the nodes are the objects of the Voronoi diagram and their regions define the keyspace they are responsible for.  The edges created by the Deluanay Triangulation correspond to the connections between neighboring nodes.  However, computing Voronoi diagrams is expensive, but a greedy approximation of the Voronoi regions is sufficient for the protocol.  We created a greedy, online algorithm that approximates and maintains the set of peers defining the node's Voronoi region.
+In our network, the nodes are the objects of the Voronoi diagram and their regions define the keyspace they are responsible for.  The edges created by the Deluanay Triangulation correspond to the connections between neighboring nodes.  However, computing Voronoi diagrams is expensive, but a greedy approximation of the Voronoi regions is sufficient for the protocol.  We created a new greedy, online algorithm that approximates and maintains the set of peers defining the node's Voronoi region and Delaunay Triangulation.
 
 A formal and thorough description of Voronoi diagrams as well as their applications can be found in \cite{aurenhammer1991voronoi}.
 
@@ -151,9 +151,7 @@ Avg. Node degree is the average degree of a point in a $d$-dimensional toroidal 
 Consider a $d$-dimensional toroidal space.  Let some arbitrary point $A$ be the center of this space\footnote{Any point in a toroidal space can view itself as it's center}.  A hypercube that surrounds the space would be defined by $3^d -1$ points citation \footnote{Is this rigorous enough?}
 
 \subsubsection{Worst Case}
-
-
-The expected maximum degree of a ?point?  in $d$-dimensional Delaunay Triangulation is $\Theta(\frac{\log n}{\log \log n} )$ \cite{bern1991expected}.  We don't know how this is affected by toroidal spaces.
+The expected maximum degree of an object in a $d$-dimensional Delaunay Triangulation is $\Theta(\frac{\log n}{\log \log n} )$ \cite{bern1991expected}.
 
 
 
@@ -169,7 +167,7 @@ As VHash uses multiple dimensions, responsibity for a key is assigned to the nod
 \subsection{Mechanism}
 VHash maps nodes to a $d$ dimension toroidal unit space overlay. This is essentially a hypercube with wrapping edges. The toroidal property makes visualization difficult but allows for a space without a sparse edge, as all nodes can translate the space such that they are at the center of the space.  In effect, each node views itself at the center of the graph.
 
-VHash nodes are responsible for the address space defined by their Voronoi region. This region is defined by a list of peer nodes maintained by the node. A minimum list of peers is maintained such that the node's Voronoi region is well defined. The links connecting the node to its peers correspond to the links of a Delaunay Triangulation.  One such possible network is shown on Figure \ref{churninit}.
+As mention previously,  VHash nodes are responsible for the address space defined by their Voronoi region. This region is defined by a list of peer nodes maintained by the node. A minimum list of peers is maintained such that the node's Voronoi region is well defined. The links connecting the node to its peers correspond to the links of a Delaunay Triangulation.  One such possible network is shown on Figure \ref{churninit}.
 
 
 \begin{figure}
@@ -180,12 +178,9 @@ VHash nodes are responsible for the address space defined by their Voronoi regio
 
 \subsection{Approximation}
 
-VHash does not strictly solve Voronoi diagrams \cite{voronoi} for two reasons.  First, the toroidal nature of the space preclude the traditional means of solving for Voronoi regions. Second, computing a Voronoi diagram in spaces where $d \geq 3$ is prohibitively expensive \cite{raynet}\footnote{They cite Geometric Algorithms by Boissonat} and most of the efficient algorithms concern themselves with obtaining a Voronoi diagram of the entire space, rather than just a .
+VHash does not strictly solve Voronoi diagrams \cite{voronoi} for two reasons.  First, the toroidal nature of the space preclude the traditional means of solving for Voronoi regions. Second, computing a Voronoi diagram in spaces where $d \geq 3$ is prohibitively expensive \cite{raynet}\footnote{They cite Geometric Algorithms by Boissonat} and most of the efficient algorithms concern themselves with obtaining a Voronoi diagram of the entire space, rather than from the perspective of a distributed network, with each member calculating its own region. Rather than attempt to calculate the Voronoi region of each node, our algorithm simply filters locations, assigning responsibility to the nearest node. 
 
 
-However, VHash's peer management approximates a topology with similar properties. 
-%Rather than attempt to calculate the Voronoi region of each node, it simply filters locations, assigning responsibility to the nearest node. 
-\subsubsection{Algorithm}
 Each cycle, nodes exchange their peerlists with their current neighbors and then recalculate their neighbors.  
 The calculation is straightforward.  After a node receives it's neighbor's peerlists, it combines their peerlists and its own into a list of candidate neighbors, sorted the nodes by distance from closest to furthest (using the distance metric from REF NEEDED HERE.  A new peerlist is then created starting with the first candidate from the list of candidates.  The node then looks at each of the remaining candidates and calculates the midpoint between the node and the candidate.  If any of the nodes in the new peerlist are closer to the candidate, the candidate is set aside.  Otherwise the candidate is added to the new peerlist.
 
@@ -212,7 +207,7 @@ To reduce the effects of nodes occluding one another when they are clustered tog
 \end{algorithm}
 
 
-\subsubsection{Why this approximation works}
+%\subsubsection{Why this approximation works}
 By finding the correct (enough) neighbors, a node is able to approximate its local Voronoi region close enough for routing
 If a node can figure out its Delaunay neighbors, it can extrapolate the Voronoi region (ie the region it's responsible for) from that. 
 
