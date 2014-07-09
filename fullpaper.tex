@@ -59,16 +59,14 @@ VHash allows for the creation of P2P networks with faster record lookup time, st
 
 \end{abstract}
 \section{Introduction}
-% Merge with Below
 A Distributed Hash Table is used provide an overlay network for many P2P applications. State of the art DHT techniques are built on trees or $\log$-ring structures to ensure that the routing distance is $O(lg(n))$ hops between nodes. 
 
 In the vast majority of Distributed Hash Tables, such as Chord \cite{chord}, Kademlia\cite{kademlia}, Pastry \cite{pastry}, a node is mapped key on a 1-dimensional keyspace.  This key is chosen via a hash function, such as SHA-1, ensuring that nodes are randomly and uniformly the overlay network.
 This provides the network with fault tolerance; if all the nodes located in a real geographic region were suddenly taken offline, the damage to the network would be spread uniformly throughout the network and maintenance would repair the damage.  
 These topologies, while sufficient in reasonably local networks, do not take embed the lengths or latencies of routes defined by the topology and assume that every hop has similar latency and throughput. For a global network, a more intelligent means of generating a dynamic overlay network with efficient routing, storage, and backups is needed for future P2P applications.
-
-
  
-
+%establish that we're orking in a higher dimensional space don't let d happedn
+%We want to extend this to d dimensional
 We present VHash as a DHT designed to take inter-node latency information into account when generating an overlay on a massive scale.  VHash creates an approximation of a Voronoi network to define the routing tables and dictate where content is stored in the network.  We accomplish this by assigning each node $d$ coordinates, rather than than a single key.  The naive method of doing so is to assign coordinates to servers based on the geographic location of nodes. More complex approaches approximate a minimum latency space based on internode latency. VHash can be considered  a generalized extension of VoroNet \cite{voronet} and  RayNet \cite{raynet}.
 
 %Since no spacial information is embedded in the key, the routing tables and algorithms of DHTs aim to minimize the number of hops in order to route quickly.
@@ -177,6 +175,8 @@ VHash does not strictly solve Voronoi diagrams \cite{voronoi} for two reasons.  
 Each cycle, nodes exchange their peerlists with their current neighbors and then recalculate their neighbors.  
 The calculation is straightforward.  After a node receives it's neighbor's peerlists, it combines their peerlists and its own into a list of candidate neighbors, sorted the nodes by distance from closest to furthest (using the distance metric from REF).  A new peerlist is then created starting with the first candidate from the list of candidates.  The node then looks at each of the remaining candidates and calculates the midpoint between the node and the candidate.  If any of the nodes in the new peerlist are closer to the candidate, the candidate is set aside.  Otherwise the candidate is added to the new peerlist.
 
+%compare to richard's fast algorithm
+
 To reduce the effects of nodes occluding one another when they are clustered together, each node maintains at minimum $3d+1$ neighbors.  If the node has remaining slots left over after creating a new peerlist\footnote{This is what raynet did,worked for them, will it work for us?}, the remaining slots are filled up the closest remaining candidates.
 
 
@@ -214,10 +214,10 @@ VHash's Voronoi approximation is extremely Efficient, in both terms of space and
 
 Since the largest $k$ can be is  $6d$  (the maximum number of unique stored neighbors allowed between two neighbors), we can translate the above to
 
-\[6d\cdot\lg(6d) + 6d \text{ midpoint computations}  + 6d^{2} \text{ distance computations}\]
+\[6d\cdot\lg(6d) + 6d \text{ midpoint computations}  + (6d)^{2} \text{ distance computations}\]
 
 
-(I could probably tell you in terms of FLOPS)  Since $k$ is dependent only on the number of dimensions, $d$, $k$ itself is constant and the algorithm runs in constant time with a small coefficient.  This is a very large improvement over the volume approximation used by Raynet \cite{raynet}, which required 1000 distance calculates to do a Monte-Carlo approximation of the Voronoi region.  The routing tables will have a minimum size of $3d+1$ but have an unbounded maximum size. 
+Since $k$ is dependent only on the number of dimensions, $d$, $k$ itself is constant and the algorithm runs in constant time with a small coefficient.  This is a very large improvement over the volume approximation used by Raynet \cite{raynet}, which required 1000 distance calculates to do a Monte-Carlo approximation of the Voronoi region.  The routing tables will have a minimum size of $3d+1$ but have an unbounded maximum size. 
 
 How large can the routing table get?  It is theoretically possible to create a network in which a single node is the neighbor of every other node in the network, but it is highly unlikely. The \textit{expected maximum degree} of an object in a $d$-dimensional Delaunay Triangulation in a network of size N is $\Theta(\frac{\log N}{\log \log N} )$ \cite{bern1991expected}.
 
