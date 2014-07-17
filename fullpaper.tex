@@ -383,21 +383,32 @@ A node periodically sends a message containing backups of the resources for whic
 \subsection*{Fault Tolerence}
 That's what the long hops are for.
 
+\subsection{Peerlist Details}
 
 
 
-
-\section{Error Analyis}
-What is the error of the Voronoi Region and Delaunay Triangulation.
-
+\subsection{Error Analyis}
+%What is the error of the Voronoi Region and Delaunay Triangulation.
+Error in the graph results from occlusion (example).  We allivate this with a minimum short peer size and using long peers.
 
 \section{Simulations}
 We simulated VHash to acertain the protocol's performance. 
 
 
+\subsection{Routing Completeness}
+
 We began by creating a large underlay network.  Then $n$ random nodes were chosen to join the overlay \footnote{Can we used the number of underlay hops as out ``latency dimension'' here? }.  Nodes in the suimulation would route a message to one another and we plotted the latency and successful deliveries for VHash and Raynet.  Latency was measured by the number of hops in the \textit{underlay} network.  For comparison we also compared the performance if messages were routed perfectally and optimally to see how close to the ideal our performance was. 
 
 
+\subsubsection*{What we didn't show and why}
+A non chaotic starting point because that was no challenge, chatty join was immediately converegent
+
+\subsubsection*{What we didn't test and why}
+
+\subsection{Latency}
+%Comparison with chord, hop lengths were logarithmic
+
+\subsection{Hop Details}
 
 
 \section{Related Work And Future}
