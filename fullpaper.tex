@@ -68,7 +68,7 @@ These topologies, while sufficient in reasonably local networks, do not take emb
  
 %establish that we're orking in a higher dimensional space don't let d happedn
 %We want to extend this to d dimensional
-We present VHash as a DHT designed to take inter-node latency information into account when generating an overlay on a massive scale.  VHash creates an approximation of a Voronoi network to define the routing tables and dictate where content is stored in the network.  We accomplish this by assigning each node $d$ coordinates, rather than than a single key.  The naive method of doing so is to assign coordinates to servers based on the geographic location of nodes. More complex approaches approximate a minimum latency space based on internode latency. VHash can be considered  a generalized extension of VoroNet \cite{voronet} and  RayNet \cite{raynet}.
+We present VHash as a DHT designed to take inter-node latency information into account when generating an overlay on a massive scale.  VHash creates an approximation of a Voronoi network to define the routing tables and dictate where content is stored in the network.  We accomplish this by assigning each node $d$ coordinates, rather than than a single key.  The naive method of doing so is to assign coordinates to servers based on the geographic location of nodes. More complex approaches approximate a minimum latency space based on internode latency.
 
 %Since no spacial information is embedded in the key, the routing tables and algorithms of DHTs aim to minimize the number of hops in order to route quickly.
 %VHash is generalization of ring-based DHTs like Chord \cite{chord}, Pastry , and Symphony from 1-dimensional keyspaces to keyspaces with any number of dimensions.  
@@ -107,16 +107,10 @@ A formal and thorough description of Voronoi diagrams as well as their applicati
 
 
 \begin{algorithm}
-\caption{VHash Minimum Latency Embedding}
+\caption{VHash Minimum Latency Embedding via P2P Spring Model}
 \label{latency}
 \begin{algorithmic}[1]  % the number is how many 
-	\STATE $d$ is the dimensions of the hash space
-    \STATE seed the space with $d+1$ nodes at random locations
-   	\STATE A node $n$ wishes to join the network
-    \STATE $n$ pings a random subset of peers to find latency $L$
-    \STATE Normalize $L$ onto (0.0,1.0) to yield $L_N$
-    \STATE Choose position $p$ that minimizes \[\sum\limits_{i\in peers}(L_N[i]-dist(p,i))^2\] 
-    \STATE Re-evaluate location periodically
+	\STATE This needs to be written
 \end{algorithmic}
 \end{algorithm}
 
@@ -141,8 +135,6 @@ This is a new Topic.  We're going to talk about the options for this in the sect
 \subsubsection{Security/Trust Space}
 
 \subsubsection{Social Network Influence as an attribute.}
-
-\subsubsection{Handling Files}
 
 
 
@@ -240,18 +232,21 @@ The \textit{expected maximum number of peers} the ,\footnote{This is maximum num
 Avg. Node degree is the average degree of a point in a $d$-dimensional toroidal space.  
 Consider a $d$-dimensional toroidal space.  Let some arbitrary point $A$ be the center of this space\footnote{Any point in a toroidal space can view itself as it's center}.  A hypercube that surrounds the space would be defined by $3^d -1$ points citation \footnote{Is this rigorous enough?}
 
+Greedy peer selection is predicated on the assumption that when two nodes' voronoi region share an edge that the midpoint between them also falls on this segment. This is mitigated by the usage of long-peers. Should two nodes share an edge on thier vornoi region while the midpoint between them is occuluded by the region of another peer they will not form an accurate vonoi region or peer list. Should the occluding node have both occuluded nodes as peers then this will be solved by keeping long peers. Should chains of these occlusions occur, then the hit rate for those regions will suffer. Such chains are highly unlikely to exist without the intent to create them and likely will not occur during the normal operation of the network. The only solution to this flaw is to fall back on methods significantly slower than the greedy voronoi approximation (see volume based approximation and exact calculation).
+
 
 
 
 
 
 \subsection{Routing}
+
 \subsubsection{Messages}
 Maintenance and joining are handled by a simple periodic mechanism. A notification message consisting of a node's information and active peers is the only maintenance message. All messages have a destination hash location which is used to route them to the proper server. This destination can be the hash location of a particular node or the location of a desired record or service.  The message is received by the node responsible for the location. Services running on the DHT define their own message contents, such as commands to store and retrieve data.
 
 \subsubsection{Message Routing}
 Messages are routed over the overlay network using a simple algorithm ( Algorithm \ref{routing}). 
-When routing a message to an arbitrary location, a node calculates who's Voronoi region the message's destination is in amongst the itself and its peers. If the destination falls within its own region, then it is responsible and handles the message accordingly. Otherwise, the node forwards the message to the closest peer to the destination location. This process describes\footnote{Wording.  Is equivalent a better word?} a pre-computed and cached A* routing  algorithm \cite{astar} . 
+When routing a message to an arbitrary location, a node calculates who's Voronoi region the message's destination is in amongst the itself and its peers. If the destination falls within its own region, then it is responsible and handles the message accordingly. Otherwise, the node forwards the message to the closest peer to the destination location. This process describes\footnote{Wording.  Is equivalent a better word?} a pre-computed and cached efficent routing algorithm. Even if our approximation for the voronoi region of a peer is incorrect due to incomplete knowledge of the network, our approximation describes the efficent forwarding path of a message destined for that space.
 
 \begin{algorithm}
 \caption{Vhash Routing}
@@ -382,8 +377,17 @@ Some options are immediately apparent for dealing with wasted storage space. A s
 A node periodically sends a message containing backups of the resources for which it became newly responsible for to each of its peers. To minimize bandwidth and time wasted by backups, the node should only send the records changed since last backup.
 
 
-\subsection*{Fault Tolerence}
-That's what the long hops are for.
+\subsection{Fault Tolerence}
+Fault tolerence is a necessary part of any Distributed Hash Table.  VHash can easily deal with churn, the constant inaccuracies of nodes joing and leaving the network, using an extremely lightweight and reactive pruning of peers. 
+
+% joins covered earlier.
+
+Suppose a node $f$ fails and leaves the network; we assume it does so abruptly and without warning. When one of $f$'s neighbors attempts to contact $f$ for gossiping or routing, failure to communicate with $f$ will prompt the neighbor to remove $f$ from its peers.  The node the selects a different neighbor to gossip with or recomputes the peer closest to the location it was looking for, in the case of routing. The network can on the incessant gossiping of nodes to create new links among the nodes.
+
+This simple pruning works for routing because when a node fails, one of it's neighbors in the 
+
+\subsubsection{Files}
+They get stored in the short peers, so no worries.  Lookup would be successful for any retreive.  Stores on the other hand, can be more volatile.  If a node has just dropped out of the network, it's neighbors will appropriately recaculate the region within a few cycles.  If a store command is issued during that time, routing may direct it to the wrong node temporarily;  the node will believe it is responsible for that file until the Delaunay neighbors have been recalculated. 
 
 \subsection{Peerlist Details}
 
@@ -394,7 +398,11 @@ That's what the long hops are for.
 As our construction of the Voronoi Diagram and the Delaunay Triangulation is an approximation, it is not completely immune to error. Error in the graph results from occlusion (example).  We allivate this with a minimum short peer size and using long peers.
 
 
-HJo
+
+\section{File Storage}
+Like more traditional Distributed Hash tables, VHash leverages its lookup and routing algoithms to store and retreive files in a distributed and fault-tolerant manner.
+
+
 \section{Simulations}
 We simulated VHash to acertain the protocol's performance. 
 
