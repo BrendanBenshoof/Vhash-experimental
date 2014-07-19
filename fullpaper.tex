@@ -50,15 +50,18 @@
 
 \begin{abstract}
 %1. State the problem
-Distributed Hash Tables are used as a tool to generate overlay networks for P2P networks. Current DHT techniques are not designed to take the nature of the underlying network into account when organizing the overlay network. Current DHT networks assign nodes locations in a ring or tree, limiting the ability of these networks to be more efficient.
+Distributed Hash Tables are used as a tool to generate overlay networks.
+Current DHT techniques are not designed to take the topology of the underlay network into account when constructing the overlay network.
 %2. Say why it’s an interesting problem
-A DHT technique that allows for efficient construction of an overlay network that takes into account the real underlying network would allow for higher performance and faster P2P networks.
+A DHT technique that allows for efficient construction of an overlay network  and takes into account the features of the underlying network would allow for higher performance P2P networks.
 %3. Say what your solution achieves
-We present VHash as a spacial DHT based on approximate Delaunay Triangulation to integrate distance information between nodes into overlay network topology.
+VHash utilizes a high-proformance distributed approximation technique to generate an overlay network based on the Delaunay Triangulation of points in any number of dimensions.
 %4. Say what follows from your solution
-VHash allows for the creation of P2P networks with faster record lookup time, storage, and maintenance with a geographically diverse set of nodes.
+This allows for the creation of simple and robust P2P networks with faster record lookup time and maintenance with a geographically diverse set of nodes.
+
 
 \end{abstract}
+
 \section{Introduction}
 A Distributed Hash Table is used provide an overlay network for many P2P applications. State of the art DHT techniques are built on trees or $\log$-ring structures to ensure that the routing distance is $O(lg(n))$ hops between nodes. 
 
@@ -264,8 +267,7 @@ Each node in the network performs maintenance periodically by `gossiping' with a
 
 This maintenance through gossip process is very similar to the gossip protocol used in \cite{raynet}.  
 
-When messages sent to a peer fail, it is assumed the peer has left the network. The leaving peer is removed from the peer list and candidates from the set of 2-hop peers provided by other peers move in to replace it. .  Figures \ref{churnjoin}, \ref{churndone}, and \ref{churndrop} illustrate the joining processing.
-
+When messages sent to a peer fail, it is assumed the peer has left the network. The leaving peer is removed from the peer list and candidates from the set of 2-hop peers move in to replace it.
 
 
 \subsubsection*{Joining}
