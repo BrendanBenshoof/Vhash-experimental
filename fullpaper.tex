@@ -87,8 +87,15 @@ Our paper presents the following:
 
 
 \section{VHash}
-Voronoi diagrams define ownership of a space, with each object in the space owning all the points closest to it.  We denote the region owned by an object as a Voronoi region, or simply that object's region.  In VHash, these objects are nodes mapped to a $d$-dimensional toroidal space and the regions they own define the range of keys they are responsible for.  \footnote{If Chord defined node responsibility in terms of distance to the key, Chord would be a 1-dimensional Voronoi diagram}.  
 
+%The what:
+Nodes in the VHash network periodically gossip with other nodes, exchanging information about theirs peers and use the approximation algorithm to refine its list of neighbors.  These neighbors approximate the node's Voronoi region and it's corresponding responsibilities.  This approximation algorithm is fast and can be used for spaces with an arbitrary number of dimensions.
+
+
+\subsection{Voronoi Regions and Delaunay Triangulations}
+Voronoi diagrams define ownership of a space, with each object in the space owning all the points closest to it.  We denote the region owned by an object as a Voronoi region, or simply that object's region.  In VHash, these objects are nodes mapped to a $d$-dimensional toroidal space and the regions they own define the range of keys they are responsible for.
+
+%The why
 By assigning nodes and files a set of coordinates composed of not only the hashkey, but information that can be used as a metric for routing,  allows us to optimize routing in the the network along that metric without jeopardizing the distributed quality of the network.  We are particularly interested in embedding latency as a measurement of true distance between nodes.  Algorithm \ref{latency} describes the process for performing a minimum latency embedding using VHash.
 
 
@@ -116,46 +123,6 @@ A formal and thorough description of Voronoi diagrams as well as their applicati
 
 
 
-
-
-
-\subsection{Key Generation - Mapping a Node to Coordinates}
-
-We suggest using the following spaces as our dimensions
-
-This is a new Topic.  We're going to talk about the options for this in the section , but taking advantage of these is it's own work.
-
-\subsubsection{Cryptographic Keyspace}
-
-
-\subsubsection{Geographic Coordinate}
-
-\subsubsection{Latency - Spring Based Model}
-
-\subsubsection{Security/Trust Space}
-
-\subsubsection{Social Network Influence as an attribute.}
-
-
-
-
-
-\subsubsection{Memory Overhead}
-In order to route, a node maintains a routing table consisting of the nodes it borders a region with.  Unlike other DHTs, which keep routing tables of a set size, VHash's routing table depends on the nodes that it shares a border with, which is on average $3^d -1$???
-
-
- 
-\subsubsection{Toroidal Distance Equation}
-VHash maps nodes to a $d$ dimension toroidal unit space overlay. This is essentially a hypercube with wrapping edges. The toroidal property makes visualization difficult but allows for a space without a sparse edge, as all nodes can translate the space such that they are at the center of the space.  In effect, each node views itself at the center of the graph.
-
-As VHash uses multiple dimensions, responsibility for a key is assigned to the node closest to that key. Given two vector locations $\vec{a}$ and $\vec{b}$ on a  $d$ dimensional unit toroidal hypercube, the distance between them is:
-\[  \sqrt[d]{\sum\limits_{i\in d} (\min(|\vec{a}_i-\vec{b}_i|, 1.0-|\vec{a}_i-\vec{b}_i|))^2}\]
-
-
-
-%As mention previously,  VHash nodes are responsible for the address space defined by their Voronoi region. This region is defined by a list of peer nodes maintained by the node. A minimum list of peers is maintained such that the node's Voronoi region is well defined. The links connecting the node to its peers correspond to the links of a Delaunay Triangulation.  One such possible network is shown on Figure \ref{churninit}.
-
-
 \begin{figure}
     \includegraphics[width=\linewidth]{voronoi-churn2}
     \caption{The starting network topology.  The blue lines demark the Voronoi edges, while the red lines connecting the nodes correspond to the Delaunay Triangulation edges and one-hop connections.}
@@ -163,8 +130,14 @@ As VHash uses multiple dimensions, responsibility for a key is assigned to the n
 \end{figure}
 
 \subsection{Approximation Algorithm}
+VHash maps nodes to a $d$ dimension toroidal unit space overlay. This is essentially a hypercube with wrapping edges. The toroidal property makes visualization difficult but allows for a space without a sparse edge, as all nodes can translate the space such that they are at the center of the space.  In effect, each node views itself at the center of the graph.
 
-VHash does not strictly solve Voronoi diagrams \cite{voronoi} for two reasons.  First, the toroidal nature of the space preclude the traditional means of solving for Voronoi regions. Second, computing a Voronoi diagram in spaces where $d \geq 3$ is prohibitively expensive \cite{raynet}\footnote{They cite Geometric Algorithms by Boissonat} and most of the efficient algorithms concern themselves with obtaining a Voronoi diagram of the entire space, rather than from the perspective of a distributed network, with each member calculating its own region. Rather than attempt to calculate the Voronoi region of each node, our algorithm simply filters locations, assigning responsibility to the nearest node. 
+As VHash uses multiple dimensions, responsibility for a key is assigned to the node closest to that key. Given two vector locations $\vec{a}$ and $\vec{b}$ on a  $d$ dimensional unit toroidal hypercube, the distance between them is:
+\[  \sqrt[d]{\sum\limits_{i\in d} (\min(|\vec{a}_i-\vec{b}_i|, 1.0-|\vec{a}_i-\vec{b}_i|))^2}\]\footnote{check}
+
+
+VHash does not strictly solve Voronoi diagrams \cite{voronoi} for two reasons.  First, the toroidal nature of the space preclude the traditional means of solving for Voronoi regions. Second, computing a Voronoi diagram in spaces where $d \geq 3$ is prohibitively expensive \cite{raynet}%\footnote{They cite Geometric Algorithms by Boissonat} 
+and most of the efficient algorithms concern themselves with obtaining a Voronoi diagram of the entire space, rather than from the perspective of a distributed network, with each member calculating its own region. Rather than attempt to calculate the Voronoi region of each node, our algorithm simply filters locations, assigning responsibility to the nearest node. 
 
 
 Each cycle, nodes exchange their peerlists with their current neighbors and then recalculate their neighbors.  
@@ -172,11 +145,11 @@ The calculation is straightforward.  After a node receives it's neighbor's peerl
 
 %compare to richard's fast algorithm
 
-To reduce the effects of nodes occluding one another when they are clustered together, each node maintains at minimum $3d+1$ neighbors.  If the node has remaining slots left over after creating a new peerlist\footnote{This is what raynet did,worked for them, will it work for us?}, the remaining slots are filled up the closest remaining candidates.
+To reduce the effects of nodes occluding one another when they are clustered together, each node maintains at minimum $3d+1$ neighbors.  If the node has remaining slots left over after creating a new peerlist, the remaining slots are filled up the closest remaining candidates.
 
 
 \begin{algorithm}
-\caption{VHash Greedy Peer Selection}
+\caption{Approximation using Greedy Peer Selection}
 \label{peer}
 \begin{algorithmic}[1]  % the number is how many 
 	\STATE $Candiates$ is the set of candidate peers
@@ -209,12 +182,13 @@ VHash's Voronoi approximation is extremely Efficient, in both terms of space and
 
 Since the largest $k$ can be is  $6d$  (the maximum number of unique stored neighbors allowed between two neighbors), we can translate the above to
 
-\[6d\cdot\lg(6d) + 6d \text{ midpoint computations}  + (6d)^{2} \text{ distance computations}\]
+\[6d\cdot\lg(6d) + 6d \text{ midpoint computations}\]  \[+ (6d)^{2} \text{ distance computations}\]
 
 
 Since $k$ is dependent only on the number of dimensions, $d$, $k$ itself is constant and the algorithm runs in constant time with a small coefficient.  This is a very large improvement over the volume approximation used by Raynet \cite{raynet}, which required 1000 distance calculates to do a Monte-Carlo approximation of the Voronoi region.  The routing tables will have a minimum size of $3d+1$ but have an unbounded maximum size. 
 
-How large can the routing table get?  It is theoretically possible to create a network in which a single node is the neighbor of every other node in the network, but it is highly unlikely. The \textit{expected maximum degree} of an object in a $d$-dimensional Delaunay Triangulation in a network of size N is $\Theta(\frac{\log N}{\log \log N} )$ \cite{bern1991expected}.
+It is theoretically possible to create a network in which a single node is the neighbor of every other node in the network, but it is highly unlikely. The \textit{expected maximum degree}\footnote{This is maximum number of peers that a node would have in a non-contrived example.  While the degree for a node can theoretically be $O(n)$ in a Delaunay triangulation, it is extremely unlikely.}
+ of an object in a $d$-dimensional Delaunay Triangulation in a network of size N is $\Theta(\frac{\log N}{\log \log N} )$ \cite{bern1991expected}. 
 
 
 \subsubsection*{Accuracy}
@@ -225,12 +199,9 @@ The key to the greedy approximation working is that it just needs to be accurate
 The routing tables in VHash are $O(1)$ space, while providing polylogarithmic  average lookup time measured in hops?\footnote{Our initial assessment was $d$-root, but other papers say Polylogarithmic routing \cite{kleinberg2000navigation} \cite{raynet}} average lookup time in hops with a minimized latency.
 
 
-
-The \textit{expected maximum number of peers} the ,\footnote{This is maximum number of peers that a node would have in a non-contrived example.  While the degree for a node can theoretically be $O(n)$ in a Delaunay triangulation, it is extremely unlikely.}
-
-
-Avg. Node degree is the average degree of a point in a $d$-dimensional toroidal space.  
 Consider a $d$-dimensional toroidal space.  Let some arbitrary point $A$ be the center of this space\footnote{Any point in a toroidal space can view itself as it's center}.  A hypercube that surrounds the space would be defined by $3^d -1$ points citation \footnote{Is this rigorous enough?}
+
+Greedy peer selection is predicated on the assumption that when two nodes' voronoi region share an edge that the midpoint between them also falls on this segment. This is mitigated by the usage of long-peers. Should two nodes share an edge on thier vornoi region while the midpoint between them is occuluded by the region of another peer they will not form an accurate vonoi region or peer list. Should the occluding node have both occuluded nodes as peers then this will be solved by keeping long peers. Should chains of these occlusions occur, then the hit rate for those regions will suffer. Such chains are highly unlikely to exist without the intent to create them and likely will not occur during the normal operation of the network. The only solution to this flaw is to fall back on methods significantly slower than the greedy voronoi approximation (see volume based approximation and exact calculation).
 
 
 
@@ -244,9 +215,7 @@ Maintenance and joining are handled by a simple periodic mechanism. A notificati
 
 \subsubsection{Message Routing}
 Messages are routed over the overlay network using a simple algorithm ( Algorithm \ref{routing}). 
-When routing a message to an arbitrary location, a node calculates who's Voronoi region the message's destination is in amongst the itself and its peers. If the destination falls within its own region, then it is responsible and handles the message accordingly. Otherwise, the node forwards the message to the closest peer to the destination location. This process describes\footnote{Wording.  Is equivalent a better word?} a pre-computed and cached efficent routing algorithm.
-
-Even if our approximation for the voronoi region of a peer is incorrect due to incomplete knowledge of the network, our approximation describes the efficent forwarding path of a message destined for that space.
+When routing a message to an arbitrary location, a node calculates who's Voronoi region the message's destination is in amongst the itself and its peers. If the destination falls within its own region, then it is responsible and handles the message accordingly. Otherwise, the node forwards the message to the closest peer to the destination location. This process describes\footnote{Wording.  Is equivalent a better word?} a pre-computed and cached efficient routing algorithm. Even if our approximation for the Voronoi region of a peer is incorrect due to incomplete knowledge of the network, our approximation describes the efficient forwarding path of a message destined for that space.
 
 \begin{algorithm}
 \caption{Vhash Routing}
@@ -273,8 +242,33 @@ Even if our approximation for the voronoi region of a peer is incorrect due to i
 %If a node thinks it's responsible for some key, but it turns out not to be the case,  we can redirect the message to the node next closest (with a flag in the message to prevent loops). 
 
 
+\subsection{Maintenance}
+This section is actually spread around the document at the moment 
 
-\subsection{Joining and Maintenance}
+The layout should be maintenance, routing, approximation
+
+\subsubsection*{Peerlist}
+A node maintains fairly limited information about the state of the network, as it only needs to hold information about its immediate vicinity to calculate the approximation of the Voronoi region.  Specifically, the node maintains two lists of peers.
+\begin{enumerate}
+	\item The \textit{short peers} or \textit{neighbors}.  These are the peers sharing an edge with the node from the computed Delaunay Triangulation.  \textit{Short Peers} has a limited size of FORMULA. There is no maximum to the size that the list of Short Peers can have, but the expected maximum size in a network with $N$ nodes is $\Theta(\frac{\log N}{\log \log N} )$ \cite{bern1991expected}.  
+	\item The \textit{long peers} correspond to the two hop peers of the node.  This list, which can have anywhere between 0 and FORMULA entries, helps the approximation algorithm avoid making errors due to occlusion. 
+\end{enumerate}
+\footnote{WE NEED TO GO THRU AND CLARIFY EACH INSTANCE OF PEER AND NEIGHBOR.  I'VE BEEN USING PEERLIST FOR SHORT PEERS}
+
+
+
+\subsubsection*{Gossiping}
+
+Each node in the network performs maintenance periodically by `gossiping' with a randomly chosen neighbor.  When two nodes gossip with each other, they exchange their \textit{short peers} with each other.   The node combines the lists of \textit{short peers} and uses the approximation algorithm determine which of these candidates correspond to its neighbors along the Delaunay Triangulation.  The candidates determined not to be neighbors become \textit{long peers}\footnote{which is prevented from becoming to large by...}.  The formal algorithm for this process is described by Algorithms \ref{maint} and \ref{handlemaint}
+%a maintenance message to its peers. The maintenance message consists of the node's information and the information on that node's peer list. When a maintenance message is received, the receiving node considers the listed nodes as candidates for its own peer list and removes any occluded nodes (Algorithm \ref{peer}). 
+
+This maintenance through gossip process is very similar to the gossip protocol used in \cite{raynet}.  
+
+When messages sent to a peer fail, it is assumed the peer has left the network. The leaving peer is removed from the peer list and candidates from the set of 2-hop peers provided by other peers move in to replace it. .  Figures \ref{churnjoin}, \ref{churndone}, and \ref{churndrop} illustrate the joining processing.
+
+
+
+\subsubsection*{Joining}
 Joining the network is a straightforward process. A new node first learns the location of at least one member of the network to join. The joining node then chooses a location in the hash space either at random or based on a problem formulation (for example, based on geographic location or latency information).
 
 After choosing a location, the joining node sends a ``join'' message to its own location via the known node.
@@ -300,11 +294,6 @@ The joining node's initial peers are a subset of the parent and the parent's pee
 \end{algorithm}
 
 
-
-
-Each node in the network performs maintenance periodically by a maintenance message to its peers. The maintenance message consists of the node's information and the information on that node's peer list. When a maintenance message is received, the receiving node considers the listed nodes as candidates for its own peer list and removes any occluded nodes (Algorithm \ref{peer}). 
-
-When messages sent to a peer fail, it is assumed the peer has left the network. The leaving peer is removed from the peer list and candidates from the set of 2-hop peers provided by other peers move in to replace it.  Maintenance is described by Algorithms \ref{maint} and \ref{handlemaint}.  Figures \ref{churnjoin}, \ref{churndone}, and \ref{churndrop} illustrate the joining processing.
 
 \begin{algorithm}
 \caption{VHash Maintenance Cycle}
@@ -377,10 +366,16 @@ Some options are immediately apparent for dealing with wasted storage space. A s
 A node periodically sends a message containing backups of the resources for which it became newly responsible for to each of its peers. To minimize bandwidth and time wasted by backups, the node should only send the records changed since last backup.
 
 
-\subsection*{Fault Tolerence}
-That's what the long hops are for.
+\subsection{Fault Tolerance}
+Fault tolerance is a necessary part of any Distributed Hash Table.  VHash can easily deal with churn, the constant inaccuracies of nodes joining and leaving the network, using an extremely lightweight and reactive pruning of peers. 
 
-\subsection{Peerlist Details}
+% joins covered earlier.
+
+Suppose a node $f$ fails and leaves the network; we assume it does so abruptly and without warning. When one of $f$'s neighbors attempts to contact $f$ for gossiping or routing, failure to communicate with $f$ will prompt the neighbor to remove $f$ from its peers.  The node the selects a different neighbor to gossip with or recomputes the peer closest to the location it was looking for, in the case of routing. The network can rely on the incessant gossiping of nodes to create new links among the nodes.
+
+\subsubsection{Files}
+They get stored in the short peers, so no worries.  Lookup would be successful for any retreive.  Stores on the other hand, can be more volatile.  If a node has just dropped out of the network, it's neighbors will appropriately recalculate the region within a few cycles.  If a store command is issued during that time, routing may direct it to the wrong node temporarily;  the node will believe it is responsible for that file until the Delaunay neighbors have been recalculated. 
+
 
 
 
@@ -389,32 +384,60 @@ That's what the long hops are for.
 As our construction of the Voronoi Diagram and the Delaunay Triangulation is an approximation, it is not completely immune to error. Error in the graph results from occlusion (example).  We allivate this with a minimum short peer size and using long peers.
 
 
-HJo
+
+\subsection{Key Generation - Mapping a Node to Coordinates}
+
+We suggest using the following spaces as our dimensions
+
+This is a new Topic.  We're going to talk about the options for this in the section , but taking advantage of these is it's own work.
+
+\subsubsection{Cryptographic Keyspace}
+
+
+\subsubsection{Geographic Coordinate}
+
+\subsubsection{Latency - Spring Based Model}
+
+\subsubsection{Security/Trust Space}
+
+\subsubsection{Social Network Influence as an attribute.}
+
+
+
+
+
+\subsubsection{Memory Overhead}
+In order to route, a node maintains a routing table consisting of the nodes it borders a region with.  Unlike other DHTs, which keep routing tables of a set size, VHash's routing table depends on the nodes that it shares a border with, which is on average $3^d -1$???
+
+
 \section{Simulations}
-We simulated VHash to acertain the protocol's performance. 
+We simulated VHash to ascertain the protocol's performance. 
 
 
-\subsection{Routing Completeness}
 
-We began by creating a large underlay network.  Then $n$ random nodes were chosen to join the overlay \footnote{Can we used the number of underlay hops as out ``latency dimension'' here? }.  Nodes in the suimulation would route a message to one another and we plotted the latency and successful deliveries for VHash and Raynet.  Latency was measured by the number of hops in the \textit{underlay} network.  For comparison we also compared the performance if messages were routed perfectally and optimally to see how close to the ideal our performance was. 
+
+\subsection{Underlay Routing}
+Our first set of simulations tested VHash's ability to converge towards a topology that would correctly route messages
 
 
 \subsubsection*{What we didn't show and why}
-A non chaotic starting point because that was no challenge, chatty join was immediately converegent
+A non chaotic starting point because that was no challenge, chatty join was immediately convergent
 
 \subsubsection*{What we didn't test and why}
 
 \subsection{Latency}
+We began by creating a large underlay network.  Then $n$ random nodes were chosen to join the overlay  Nodes in the suimulation would route a message to one another and we plotted the latency and successful deliveries for VHash and Raynet.  Latency was measured by the number of hops in the \textit{underlay} network.  For comparison we also compared the performance if messages were routed perfectally and optimally to see how close to the ideal our performance was. 
+
 %Comparison with chord, hop lengths were logarithmic
 
 \subsection{Hop Details}
 
 
 \section{Related Work And Future}
-Voronet stuff here.
 
 
-Beaumont \textit{et al} \cite{raynet}  argues that a loose structure enough for searching.  Assume a $d$-dimension space, each dimension tied to some attribute of an object and each object identified by a unique set of values.  Objects should be linked to other objects that are close in the space.
+
+Beaumont \textit{et al.} \cite{raynet}  argues that a loose structure enough for searching.  Assume a $d$-dimension space, each dimension tied to some attribute of an object and each object identified by a unique set of values.  Objects should be linked to other objects that are close in the space.
  
 
 The key insight that Beaumont \textit{et al} had  was that nodes only needed to calculate their regions locally and this can be done via goosip-based protocol.
