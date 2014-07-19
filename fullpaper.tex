@@ -246,7 +246,7 @@ Maintenance and joining are handled by a simple periodic mechanism. A notificati
 
 \subsubsection{Message Routing}
 Messages are routed over the overlay network using a simple algorithm ( Algorithm \ref{routing}). 
-When routing a message to an arbitrary location, a node calculates who's Voronoi region the message's destination is in amongst the itself and its peers. If the destination falls within its own region, then it is responsible and handles the message accordingly. Otherwise, the node forwards the message to the closest peer to the destination location. This process describes\footnote{Wording.  Is equivalent a better word?} a pre-computed and cached efficent routing algorithm. Even if our approximation for the voronoi region of a peer is incorrect due to incomplete knowledge of the network, our approximation describes the efficent forwarding path of a message destined for that space.
+When routing a message to an arbitrary location, a node calculates who's Voronoi region the message's destination is in amongst the itself and its peers. If the destination falls within its own region, then it is responsible and handles the message accordingly. Otherwise, the node forwards the message to the closest peer to the destination location. This process describes\footnote{Wording.  Is equivalent a better word?} a pre-computed and cached efficient routing algorithm. Even if our approximation for the Voronoi region of a peer is incorrect due to incomplete knowledge of the network, our approximation describes the efficient forwarding path of a message destined for that space.
 
 \begin{algorithm}
 \caption{Vhash Routing}
@@ -273,8 +273,33 @@ When routing a message to an arbitrary location, a node calculates who's Voronoi
 %If a node thinks it's responsible for some key, but it turns out not to be the case,  we can redirect the message to the node next closest (with a flag in the message to prevent loops). 
 
 
+\subsection{Maintenance}
+This section is actually spread around the document at the moment 
 
-\subsection{Joining and Maintenance}
+The layout should be maintenance, routing, approximation
+
+\subsubsection*{Peerlist}
+A node maintains fairly limited information about the state of the network, as it only needs to hold information about its immediate vicinity to calculate the approximation of the Voronoi region.  Specifically, the node maintains two lists of peers.
+\begin{enumerate}
+	\item The \textit{short peers} or \textit{neighbors}.  These are the peers sharing an edge with the node from the computed Delaunay Triangulation.  \textit{Short Peers} has a limited size of FORMULA. There is no maximum to the size that the list of Short Peers can have, but the expected maximum size in a network with $N$ nodes is $\Theta(\frac{\log N}{\log \log N} )$ \cite{bern1991expected}.  
+	\item The \textit{long peers} correspond to the two hop peers of the node.  This list, which can have anywhere between 0 and FORMULA entries, helps the approximation algorithm avoid making errors due to occlusion. 
+\end{enumerate}
+\footnote{WE NEED TO GO THRU AND CLARIFY EACH INSTANCE OF PEER AND NEIGHBOR.  I'VE BEEN USING PEERLIST FOR SHORT PEERS}
+
+
+
+\subsubsection*{Gossiping}
+
+Each node in the network performs maintenance periodically by `gossiping' with a randomly chosen neighbor.  When two nodes gossip with each other, they exchange their \textit{short peers} with each other.   The node combines the lists of \textit{short peers} and uses the approximation algorithm determine which of these candidates correspond to its neighbors along the Delaunay Triangulation.  The candidates determined not to be neighbors become \textit{long peers}\footnote{which is prevented from becoming to large by...}.  The formal algorithm for this process is described by Algorithms \ref{maint} and \ref{handlemaint}
+%a maintenance message to its peers. The maintenance message consists of the node's information and the information on that node's peer list. When a maintenance message is received, the receiving node considers the listed nodes as candidates for its own peer list and removes any occluded nodes (Algorithm \ref{peer}). 
+
+This maintenance through gossip process is very similar to the gossip protocol used in \cite{raynet}.  
+
+When messages sent to a peer fail, it is assumed the peer has left the network. The leaving peer is removed from the peer list and candidates from the set of 2-hop peers provided by other peers move in to replace it. .  Figures \ref{churnjoin}, \ref{churndone}, and \ref{churndrop} illustrate the joining processing.
+
+
+
+\subsubsection*{Joining}
 Joining the network is a straightforward process. A new node first learns the location of at least one member of the network to join. The joining node then chooses a location in the hash space either at random or based on a problem formulation (for example, based on geographic location or latency information).
 
 After choosing a location, the joining node sends a ``join'' message to its own location via the known node.
@@ -300,11 +325,6 @@ The joining node's initial peers are a subset of the parent and the parent's pee
 \end{algorithm}
 
 
-
-
-Each node in the network performs maintenance periodically by a maintenance message to its peers. The maintenance message consists of the node's information and the information on that node's peer list. When a maintenance message is received, the receiving node considers the listed nodes as candidates for its own peer list and removes any occluded nodes (Algorithm \ref{peer}). 
-
-When messages sent to a peer fail, it is assumed the peer has left the network. The leaving peer is removed from the peer list and candidates from the set of 2-hop peers provided by other peers move in to replace it.  Maintenance is described by Algorithms \ref{maint} and \ref{handlemaint}.  Figures \ref{churnjoin}, \ref{churndone}, and \ref{churndrop} illustrate the joining processing.
 
 \begin{algorithm}
 \caption{VHash Maintenance Cycle}
@@ -377,19 +397,16 @@ Some options are immediately apparent for dealing with wasted storage space. A s
 A node periodically sends a message containing backups of the resources for which it became newly responsible for to each of its peers. To minimize bandwidth and time wasted by backups, the node should only send the records changed since last backup.
 
 
-\subsection{Fault Tolerence}
-Fault tolerence is a necessary part of any Distributed Hash Table.  VHash can easily deal with churn, the constant inaccuracies of nodes joing and leaving the network, using an extremely lightweight and reactive pruning of peers. 
+\subsection{Fault Tolerance}
+Fault tolerance is a necessary part of any Distributed Hash Table.  VHash can easily deal with churn, the constant inaccuracies of nodes joining and leaving the network, using an extremely lightweight and reactive pruning of peers. 
 
 % joins covered earlier.
 
-Suppose a node $f$ fails and leaves the network; we assume it does so abruptly and without warning. When one of $f$'s neighbors attempts to contact $f$ for gossiping or routing, failure to communicate with $f$ will prompt the neighbor to remove $f$ from its peers.  The node the selects a different neighbor to gossip with or recomputes the peer closest to the location it was looking for, in the case of routing. The network can on the incessant gossiping of nodes to create new links among the nodes.
-
-This simple pruning works for routing because when a node fails, one of it's neighbors in the 
+Suppose a node $f$ fails and leaves the network; we assume it does so abruptly and without warning. When one of $f$'s neighbors attempts to contact $f$ for gossiping or routing, failure to communicate with $f$ will prompt the neighbor to remove $f$ from its peers.  The node the selects a different neighbor to gossip with or recomputes the peer closest to the location it was looking for, in the case of routing. The network can rely on the incessant gossiping of nodes to create new links among the nodes.
 
 \subsubsection{Files}
-They get stored in the short peers, so no worries.  Lookup would be successful for any retreive.  Stores on the other hand, can be more volatile.  If a node has just dropped out of the network, it's neighbors will appropriately recaculate the region within a few cycles.  If a store command is issued during that time, routing may direct it to the wrong node temporarily;  the node will believe it is responsible for that file until the Delaunay neighbors have been recalculated. 
+They get stored in the short peers, so no worries.  Lookup would be successful for any retreive.  Stores on the other hand, can be more volatile.  If a node has just dropped out of the network, it's neighbors will appropriately recalculate the region within a few cycles.  If a store command is issued during that time, routing may direct it to the wrong node temporarily;  the node will believe it is responsible for that file until the Delaunay neighbors have been recalculated. 
 
-\subsection{Peerlist Details}
 
 
 
@@ -399,12 +416,9 @@ As our construction of the Voronoi Diagram and the Delaunay Triangulation is an 
 
 
 
-\section{File Storage}
-Like more traditional Distributed Hash tables, VHash leverages its lookup and routing algoithms to store and retreive files in a distributed and fault-tolerant manner.
-
 
 \section{Simulations}
-We simulated VHash to acertain the protocol's performance. 
+We simulated VHash to ascertain the protocol's performance. 
 
 
 \subsection{Routing Completeness}
