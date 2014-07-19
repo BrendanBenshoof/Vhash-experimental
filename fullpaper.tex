@@ -133,7 +133,7 @@ A formal and thorough description of Voronoi diagrams as well as their applicati
 VHash maps nodes to a $d$ dimension toroidal unit space overlay. This is essentially a hypercube with wrapping edges. The toroidal property makes visualization difficult but allows for a space without a sparse edge, as all nodes can translate the space such that they are at the center of the space.  In effect, each node views itself at the center of the graph.
 
 As VHash uses multiple dimensions, responsibility for a key is assigned to the node closest to that key. Given two vector locations $\vec{a}$ and $\vec{b}$ on a  $d$ dimensional unit toroidal hypercube, the distance between them is:
-\[  \sqrt[d]{\sum\limits_{i\in d} (\min(|\vec{a}_i-\vec{b}_i|, 1.0-|\vec{a}_i-\vec{b}_i|))^2}\]
+\[  \sqrt[d]{\sum\limits_{i\in d} (\min(|\vec{a}_i-\vec{b}_i|, 1.0-|\vec{a}_i-\vec{b}_i|))^2}\]\footnote{check}
 
 
 VHash does not strictly solve Voronoi diagrams \cite{voronoi} for two reasons.  First, the toroidal nature of the space preclude the traditional means of solving for Voronoi regions. Second, computing a Voronoi diagram in spaces where $d \geq 3$ is prohibitively expensive \cite{raynet}%\footnote{They cite Geometric Algorithms by Boissonat} 
@@ -414,27 +414,30 @@ In order to route, a node maintains a routing table consisting of the nodes it b
 We simulated VHash to ascertain the protocol's performance. 
 
 
-\subsection{Routing Completeness}
 
-We began by creating a large underlay network.  Then $n$ random nodes were chosen to join the overlay \footnote{Can we used the number of underlay hops as out ``latency dimension'' here? }.  Nodes in the suimulation would route a message to one another and we plotted the latency and successful deliveries for VHash and Raynet.  Latency was measured by the number of hops in the \textit{underlay} network.  For comparison we also compared the performance if messages were routed perfectally and optimally to see how close to the ideal our performance was. 
+
+\subsection{Underlay Routing}
+Our first set of simulations tested VHash's ability to converge towards a topology that would correctly route messages
 
 
 \subsubsection*{What we didn't show and why}
-A non chaotic starting point because that was no challenge, chatty join was immediately converegent
+A non chaotic starting point because that was no challenge, chatty join was immediately convergent
 
 \subsubsection*{What we didn't test and why}
 
 \subsection{Latency}
+We began by creating a large underlay network.  Then $n$ random nodes were chosen to join the overlay  Nodes in the suimulation would route a message to one another and we plotted the latency and successful deliveries for VHash and Raynet.  Latency was measured by the number of hops in the \textit{underlay} network.  For comparison we also compared the performance if messages were routed perfectally and optimally to see how close to the ideal our performance was. 
+
 %Comparison with chord, hop lengths were logarithmic
 
 \subsection{Hop Details}
 
 
 \section{Related Work And Future}
-Voronet stuff here.
 
 
-Beaumont \textit{et al} \cite{raynet}  argues that a loose structure enough for searching.  Assume a $d$-dimension space, each dimension tied to some attribute of an object and each object identified by a unique set of values.  Objects should be linked to other objects that are close in the space.
+
+Beaumont \textit{et al.} \cite{raynet}  argues that a loose structure enough for searching.  Assume a $d$-dimension space, each dimension tied to some attribute of an object and each object identified by a unique set of values.  Objects should be linked to other objects that are close in the space.
  
 
 The key insight that Beaumont \textit{et al} had  was that nodes only needed to calculate their regions locally and this can be done via goosip-based protocol.
