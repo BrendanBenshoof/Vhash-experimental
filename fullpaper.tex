@@ -50,14 +50,14 @@
 
 \begin{abstract}
 %1. State the problem
-Distributed Hash Tables are used as a tool to generate overlay networks.
+Distributed Hash Tables are used as a tool to generate overlay networks for P2P networks and other distributed services.
 Current DHT techniques are not designed to take the topology of the underlay network into account when constructing the overlay network.
 %2. Say why it’s an interesting problem
-A DHT technique that allows for efficient construction of an overlay network  and takes into account the features of the underlying network would allow for higher performance P2P networks.
+A DHT technique that allows for efficient construction of an overlay network and exploits the features of the underlying network would to optimize goals for P2P networks. 
 %3. Say what your solution achieves
-VHash utilizes a high-proformance distributed approximation technique to generate an overlay network based on the Delaunay Triangulation of points in any number of dimensions.
+VHash utilizes a high-proformance distributed approximation technique to generate an overlay network based on the Delaunay Triangulation of points in any number of dimensions, which can correspond to not only the hashkey of a node, but it's geographic location, latency to nearby nodes, and other values for optimization.
 %4. Say what follows from your solution
-This allows for the creation of simple and robust P2P networks with faster record lookup time and maintenance with a geographically diverse set of nodes.
+Our approximation algorithm allows for the creation of simple and robust P2P networks with faster record lookup time and maintenance with a geographically diverse set of nodes.  
 
 
 \end{abstract}
